@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Map</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <!-- Loader -->
+    <div id="loader">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div id="mainMenu" class="active">
+        <h4 id="citiesHeader">Cities</h4>
+
+        <div id="citiesList"></div>
+        <div class="button-group">
+          <button class="primary-btn" onclick="showAddPlace(true)">
+            🏙️ Add City
+          </button>
+          <button class="primary-btn" onclick="showAddPlace(false)">
+            🌍 Add Place
+          </button>
+          <button class="secondary-btn" onclick="showPlaces()">
+             View Places
+          </button>
+        </div>
+      </div>
+
+      <div id="placesMenu" class="hidden">
+        <button class="back-btn" onclick="backToMenu()">⬅ Back to Main</button>
+        <div id="placesList"></div>
+      </div>
+
+      <div id="addPlaceMenu" class="hidden">
+        <button class="back-btn" onclick="backToMenu()">⬅ Back</button>
+        <h3>➕ Add New Location</h3>
+        <input
+          type="text"
+          id="placeTitle"
+          placeholder="Location Name"
+          required
+        />
+        <input
+          type="number"
+          step="any"
+          id="latitude"
+          placeholder="Latitude"
+          required
+        />
+        <input
+          type="number"
+          step="any"
+          id="longitude"
+          placeholder="Longitude"
+          required
+        />
+        <input
+          type="text"
+          id="mapLink"
+          placeholder="Google Maps Link"
+          required
+        />
+        <select name="ideal" id="ideal">
+          <option value="None" selected disabled>Ideal For</option>
+          <option value="Day">Day</option>
+          <option value="Night Life">Night Life</option>
+          <option value="Tourism">Tourism</option>
+        </select>
+        <textarea
+          id="description"
+          placeholder="Description"
+          required
+        ></textarea>
+        <input type="file" id="placePhoto" accept="image/*" required />
+        <button class="submit-btn" onclick="addPlace()">Save Location</button>
+      </div>
+    </div>
+
+    <!-- Info Window -->
+    <div id="icon-info">
+      <span class="close-btn" onclick="hideInfoWindow()">×</span>
+      <div class="info-header">
+        <img class="info-image" />
+        <div class="info-title"></div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Latitude:</span>
+          <span class="info-latitude"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Longitude:</span>
+          <span class="info-longitude"></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ideal for:</span>
+          <span class="info-ideal"></span>
+        </div>
+        <div class="info-item full-width">
+          <a class="info-map-link" target="_blank">
+            <img src="direction.png" alt="Directions" class="direction-icon" />
+            <span>Open in Maps</span>
+          </a>
+        </div>
+      </div>
+      <div class="info-description-container">
+        <div class="info-label">Description:</div>
+        <div class="info-description"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
