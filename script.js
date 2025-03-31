@@ -23,10 +23,11 @@ async function initMap() {
   }
 }
 
-function toggleMenu() {
-  let sidebar = document.getElementsByClassName("sidebar");
-  sidebar.classList.toggle("hidden");
+function toggleSidebar() {
+  let sidebar = document.getElementById("sidebar"); 
+  sidebar.classList.toggle("hidden-sidebar");
 }
+
 
 async function loadLocations() {
   try {
