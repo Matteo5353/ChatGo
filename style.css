@@ -11,12 +11,12 @@ body {
 
 #map {
   height: 100vh;
-  width: calc(100% - 300px);
-  margin-left: 300px;
+  width: calc(100% - 20%);
+  margin-left: 20%;
 }
 
 #sidebar {
-  width: 300px;
+  width: 20%;
   background: #333;
   color: white;
   padding: 20px;
