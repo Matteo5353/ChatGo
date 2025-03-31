@@ -23,6 +23,11 @@ async function initMap() {
   }
 }
 
+function toggleMenu() {
+  let sidebar = document.getElementsByClassName("sidebar");
+  sidebar.classList.toggle("hidden");
+}
+
 async function loadLocations() {
   try {
     const response = await fetch(API_URL);

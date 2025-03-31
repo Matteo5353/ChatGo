@@ -15,7 +15,30 @@ body {
   margin-left: 300px;
 }
 
+.sidebar-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+  transition: 0.3s;
+}
+
+.hidden {
+  display: none;
+}
+
+
 #sidebar {
+  display: none;
   width: 300px;
   background: #333;
   color: white;
