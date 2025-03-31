@@ -11,8 +11,7 @@ body {
 
 #map {
   height: 100vh;
-  width: calc(100% - 300px);
-  margin-left: 300px;
+  width: 100%;
 }
 
 .sidebar-button {
@@ -20,9 +19,13 @@ body {
   border: none;
   cursor: pointer;
   display: flex;
+  position: fixed;
+  top: 0;
+  bottom: 0;
   flex-direction: column;
   gap: 5px;
   padding: 10px;
+  z-index: 1001;
 }
 
 .bar {
