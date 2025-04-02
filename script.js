@@ -120,6 +120,9 @@ async function showPlaces() {
         (place) => `
                 <div class="place-item" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
                     ${place.title}
+                    </span>
+                    <button onclick="deletePlace('${place.title}')" style="margin-left: 10px; padding: 2px 5px; font-size: 12px; background: red; color: white; border: none; cursor: pointer;">
+                        ✖
                 </div>
             `
       )
@@ -130,6 +133,32 @@ async function showPlaces() {
     hideLoader();
   }
 }
+
+async function deletePlace(placeTitle) {
+  showLoader();
+  try {
+    const response = await fetch('/deletePlace', {
+      method: 'DELETE',  // DELETE is the correct method for removing a resource
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: placeTitle }) // Ensure the backend supports deletion by title
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete place');
+    }
+
+    // Remove the place from the frontend list
+    Alllocations = Alllocations.filter((place) => place.title !== placeTitle);
+
+    // Refresh the list
+    showPlaces(); 
+  } catch (error) {
+    console.error("Error deleting place:", error);
+  } finally {
+    hideLoader();
+  }
+}
+
 
 function showAddPlace(isCity) {
   isAddingCity = isCity;
