@@ -120,9 +120,8 @@ async function showPlaces() {
         (place) => `
                 <div class="place-item" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
                     ${place.title}
-                    </span>
-                    <button onclick="deletePlace('${place.title}')" style="margin-left: 10px; padding: 2px 5px; font-size: 12px; background: red; color: white; border: none; cursor: pointer;">
-                        ✖
+                </div>    
+                <div class="delete-btn" onclick="deletePlace('${place.title}')">
                 </div>
             `
       )
