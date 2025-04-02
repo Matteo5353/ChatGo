@@ -112,26 +112,29 @@ async function showPlaces() {
   showLoader();
   try {
     const locations = [...Alllocations];
-    // const locations = await loadLocations()
     const placesList = document.getElementById("placesList");
+
     placesList.innerHTML = locations
       .filter((place) => !place.isCity)
       .map(
         (place) => `
-                <div class="place-item" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
-                    ${place.title}
-                </div>    
-                <div class="delete-btn" onclick="deletePlace('${place.title}')">
+                <div class="place-item" id="place-${place.title}">
+                    <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
+                        ${place.title}
+                    </span>
+                      <button class="delete-btn" data-title="${place.title}" onclick="deletePlace('${place.title}')">✖</button> <!-- This is the delete button for each place -->
                 </div>
             `
       )
       .join("");
 
     toggleMenu("placesMenu");
+    
   } finally {
     hideLoader();
   }
 }
+
 
 async function deletePlace(placeTitle) {
   showLoader();
