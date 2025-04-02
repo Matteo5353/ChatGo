@@ -317,6 +317,7 @@ button:hover {
   font-size: 16px;
   font-weight: 500;
   margin-right: 30px;  /* Space between title and delete button */
+  justify-content: space-between;
 }
 
 .delete-btn {
@@ -327,11 +328,11 @@ button:hover {
   padding: 3px 7px;
   cursor: pointer;
   border-radius: 3px;
-  transition: background 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .delete-btn:hover {
-  background: darkred;
+  background-color: darkred;
 }
 #citiesHeader{
     text-align: center;

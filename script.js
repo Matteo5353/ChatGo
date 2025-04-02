@@ -139,27 +139,41 @@ async function showPlaces() {
 async function deletePlace(placeTitle) {
   showLoader();
   try {
-    const response = await fetch('/deletePlace', {
-      method: 'DELETE',  // DELETE is the correct method for removing a resource
+    // Ensure you're using the correct URL for your backend
+    const response = await fetch('https://matteo5353.github.io/chatgo-first-website/places/delete', { // Update this URL
+      method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: placeTitle }) // Ensure the backend supports deletion by title
+      body: JSON.stringify({ title: placeTitle })
     });
 
+    // Check if the response is successful
     if (!response.ok) {
-      throw new Error('Failed to delete place');
+      const errorText = await response.text();  // Get the error message from the backend
+      throw new Error(`Failed to delete place: ${errorText}`);
     }
 
-    // Remove the place from the frontend list
+    console.log("Place deleted from database successfully!");
+
+    // After successful deletion, remove from Alllocations and UI
     Alllocations = Alllocations.filter((place) => place.title !== placeTitle);
 
-    // Refresh the list
-    showPlaces(); 
+    // Remove the place item from the DOM
+    const placeElement = document.getElementById(`place-${placeTitle}`);
+    if (placeElement) placeElement.remove();
+
+    // Refresh the UI/menu
+    backToMenu();
   } catch (error) {
     console.error("Error deleting place:", error);
+    alert(`Failed to delete place: ${error.message}`); // Show detailed error
   } finally {
     hideLoader();
   }
 }
+
+
+
+
 
 
 function showAddPlace(isCity) {
