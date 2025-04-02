@@ -84,6 +84,22 @@ button {
   border: #333 1px solid;
 }
 
+.delete-btn {
+    margin-left: 10px;
+    padding: 2px 5px;
+    font-size: 12px;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.2s ease-in-out;
+}
+
+.delete-btn:hover {
+    background: darkred;
+}
+
 .back-btn {
   background: #666;
   color: white;
