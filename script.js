@@ -150,7 +150,7 @@ async function deleteValue() {
 }
 
 
-async function deleteData() {
+async function deleteData(placeId) {
   showLoader();
   try {
     // Send DELETE request to API for the specific place clicked
