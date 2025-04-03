@@ -161,14 +161,15 @@ async function deleteValue() {
 }
 
 
-async function deleteData(placeTitle) {
-  console.log("Deleting place with ID:", placeId);  // Log placeId to check if it's passed correctly
-  
+async function deleteData(placeTitle) { 
+    // Log the placeId to ensure it's passed correctly
+  console.log("deleteData called with placeTitle:", placeTitle);
+
   // If placeId is undefined or null, handle this case
-  if (!placeId) {
-    console.error("No placeId provided.");
+  if (!placeTitle) {
+    console.error("No placeTitle provided.");
     return;
-    
+  }
   showLoader();
   try {
     // Log the placeId to ensure it's correctly passed
