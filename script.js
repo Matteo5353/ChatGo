@@ -133,6 +133,7 @@ async function showPlaces() {
   }
 }
 
+
 async function deleteValue() {
   showLoader();
   try {
@@ -148,7 +149,7 @@ async function deleteValue() {
                         ${place.title}
                 </div>
             `
-       )
+      )
       .join("");
 
     toggleMenu("placesMenu");
