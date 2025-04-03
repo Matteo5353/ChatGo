@@ -148,9 +148,14 @@ async function deleteValue() {
                         ${place.title}
                 </div>
             `
-    )
-    .join("");  // Join the array of HTML strings into one string
-    }
+       )
+      .join("");
+
+    toggleMenu("placesMenu");
+    
+  } finally {
+    hideLoader();
+  }
 }
 
 
