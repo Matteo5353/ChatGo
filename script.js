@@ -145,7 +145,7 @@ async function deleteValue() {
       .map(
         (place) => `
                 <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="deleteData('${place.id}')">
+                    <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
                         ${place.title}
                 </div>
             `
