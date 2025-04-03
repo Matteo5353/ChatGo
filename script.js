@@ -145,7 +145,7 @@ async function deleteValue() {
       .map(
         (place) => `
                 <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
+                    <span class="place-title" onclick="deleteData('${place.id}')">
                         ${place.title}
                 </div>
             `
@@ -163,6 +163,8 @@ async function deleteValue() {
 async function deleteData(placeId) {
   showLoader();
   try {
+    // Log the placeId to ensure it's correctly passed
+    console.log("Deleting place with ID:", placeId);
     // Send DELETE request to API for the specific place clicked
     await fetch(`https://openstreetmap-zue0.onrender.com/places/${placeId}`, { method: "DELETE" });
 
