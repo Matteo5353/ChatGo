@@ -134,19 +134,23 @@ async function showPlaces() {
 }
 
 async function deleteValue() {
-  const locations = [...Alllocations];
-  const placesList = document.getElementById("placesList");
+  showLoader();
+  try {
+    const locations = [...Alllocations];
+    const placesList = document.getElementById("placesList");
 
-  placesList.innerHTML = locations
-    .filter((place) => !place.isCity)
-    .map(
-      (place) => `
-        <div class="place-item" id="place-${place.title}">
-            <span class="place-title" onclick="deleteData('${place.id}')">
-                ${place.title}
-        </div>`
+    placesList.innerHTML = locations
+      .filter((place) => !place.isCity)
+      .map(
+        (place) => `
+                <div class="place-item" id="place-${place.title}">
+                    <span class="place-title" onclick="deleteData('${place.id}')">
+                        ${place.title}
+                </div>
+            `
     )
     .join("");  // Join the array of HTML strings into one string
+    }
 }
 
 
