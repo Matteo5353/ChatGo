@@ -145,7 +145,7 @@ async function deleteValue() {
       .map(
         (place) => `
                 <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="deleteData('${place.id}')">
+                    <span class="place-title" onclick="deleteData('${place.title}')">
                         ${place.title}
                 </div>
             `
@@ -160,19 +160,19 @@ async function deleteValue() {
 }
 
 
-async function deleteData(placeId) {
+async function deleteData(placeTitle) {
   showLoader();
   try {
     // Log the placeId to ensure it's correctly passed
-    console.log("Deleting place with ID:", placeId);
+    console.log("Deleting place with ID:", placeTitle);
     // Send DELETE request to API for the specific place clicked
-    await fetch(`https://openstreetmap-zue0.onrender.com/places/${placeId}`, { method: "DELETE" });
+    await fetch(`https://openstreetmap-zue0.onrender.com/places/${placeTitle}`, { method: "DELETE" });
 
     // Remove the place from Alllocations array
-    Alllocations = Alllocations.filter((place) => place.id !== placeId);
+    Alllocations = Alllocations.filter((place) => place.title !== placeTitle);
 
     // Update the UI: Remove the clicked place from the DOM
-    const deletedElement = document.getElementById(`place-${placeId}`);
+    const deletedElement = document.getElementById(`place-${placeTitle}`);
     if (deletedElement) {
       deletedElement.remove();
     }
