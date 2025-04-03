@@ -138,6 +138,7 @@ async function deleteValue() {
   const placesList = document.getElementById("placesList");
 
   placesList.innerHTML = locations
+    .filter((place) => !place.isCity)
     .map(
       (place) => `
         <div class="place-item" id="place-${place.title}">
