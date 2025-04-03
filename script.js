@@ -143,7 +143,9 @@ async function deleteValue() {
     placesList.innerHTML = locations
       .filter((place) => !place.isCity)
       .map(
-        (place) => `
+        (place) => {
+          console.log(place.title)
+          return `
                 <div class="place-item" id="place-${place.title}">
                     <span class="place-title" onclick="deleteData('${place.title}')">
                         ${place.title}
@@ -161,6 +163,13 @@ async function deleteValue() {
 
 
 async function deleteData(placeTitle) {
+  console.log("Deleting place with ID:", placeId);  // Log placeId to check if it's passed correctly
+  
+  // If placeId is undefined or null, handle this case
+  if (!placeId) {
+    console.error("No placeId provided.");
+    return;
+    
   showLoader();
   try {
     // Log the placeId to ensure it's correctly passed
