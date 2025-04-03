@@ -164,8 +164,6 @@ async function deleteValue() {
 async function deleteData(placeTitle) { 
   showLoader();
   try {
-    // Log the placeId to ensure it's correctly passed
-    console.log("Deleting place with ID:", placeTitle);
     // Send DELETE request to API for the specific place clicked
     await fetch(`https://openstreetmap-zue0.onrender.com/places/${placeTitle}`, { method: "DELETE" });
 
