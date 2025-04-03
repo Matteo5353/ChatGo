@@ -144,8 +144,7 @@ async function deleteValue() {
       .filter((place) => !place.isCity)
       .map(
         (place) => {
-          console.log(place.title)
-          return `
+           `
                 <div class="place-item" id="place-${place.title}">
                     <span class="place-title" onclick="deleteData('${place.title}')">
                         ${place.title}
