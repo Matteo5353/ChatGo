@@ -121,6 +121,8 @@ async function showPlaces() {
                 <div class="place-item" id="place-${place.title}">
                     <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
                         ${place.title}
+                    </span>
+                      <button class="delete-btn" data-title="${place.title}" onclick="deletePlace('${place.title}')">✖</button> <!-- This is the delete button for each place -->
                 </div>
             `
       )
@@ -134,61 +136,40 @@ async function showPlaces() {
 }
 
 
-async function deleteValue() {
+async function deletePlace(placeTitle) {
   showLoader();
   try {
-    const locations = [...Alllocations];
-    const placesList = document.getElementById("placesList");
-
-    placesList.innerHTML = locations
-      .filter((place) => !place.isCity)
-      .map(
-        (place) => 
-           `
-                <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="deletePlace('${place._id}')">
-                        ${place.title}
-                </div>
-            `
-      )
-      .join("");
-
-    toggleMenu("placesMenu");
-    
-  } finally {
-    hideLoader();
-  }
-}
-
-// Function to delete a place
-async function deletePlace(placeId) {
-  showLoader();
-  try {
-    const response = await fetch(API_URL, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ _id: placeId }),  // Send the ID in the body
+    // Ensure you're using the correct URL for your backend
+    const response = await fetch('https://matteo5353.github.io/chatgo-first-website/places/delete', { // Update this URL
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: placeTitle })
     });
 
-    if (!response.ok) throw new Error(`Failed to delete the place. Server responded with status: ${response.status}`);
-    
-
-    // Update the UI: Remove the clicked place from the DOM
-    const deletedElement = document.getElementById(`place-${placeId}`);
-    if (deletedElement) {
-      deletedElement.remove();
+    // Check if the response is successful
+    if (!response.ok) {
+      const errorText = await response.text();  // Get the error message from the backend
+      throw new Error(`Failed to delete place: ${errorText}`);
     }
 
-    toggleMenu("placesMenu");
+    console.log("Place deleted from database successfully!");
 
+    // After successful deletion, remove from Alllocations and UI
+    Alllocations = Alllocations.filter((place) => place.title !== placeTitle);
+
+    // Remove the place item from the DOM
+    const placeElement = document.getElementById(`place-${placeTitle}`);
+    if (placeElement) placeElement.remove();
+
+    // Refresh the UI/menu
+    backToMenu();
   } catch (error) {
     console.error("Error deleting place:", error);
-    alert('Failed to delete the place. Please try again later.');
+    alert(`Failed to delete place: ${error.message}`); // Show detailed error
   } finally {
     hideLoader();
   }
 }
-
 
 
 
