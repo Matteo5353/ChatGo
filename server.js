@@ -65,30 +65,28 @@ app.post('/places', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.delete('/places', async (req, res) => {
+app.get('/places/:id', async (req, res) => {
   try {
-    // Extract the place data (like id, title, etc.) from the request body
-    const { _id } = req.body; // Assuming the client sends the place ID in the body
-    console.log
+    const { id } = req.params;
+    const place = await Place.findById(id);
+    if (!place) return res.status(404).json({ error: "Place not found" });
+    res.json(place);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching place by ID" });
+  }
+});
 
+
+// 2. DELETE a specific place by ID
+app.delete('/places/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await Place.delete(id); // Find and delete the place by ID
     if (!id) {
-      return res.status(400).json({ error: 'Place ID is required' });
-    }
-
-    // Find the place using the id (you can also match by title, or other fields)
-    const place = await Place.find({ _id: id });
-    
-    if (!place) {
       return res.status(404).json({ error: 'Place not found' });
     }
-
-    // Remove the place from the database
-    await place.remove();
     res.json({ message: 'Place deleted successfully' });
-
   } catch (error) {
     console.error('Error deleting place:', error);
     res.status(500).json({ error: 'Failed to delete place' });

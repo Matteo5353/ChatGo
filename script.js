@@ -122,7 +122,6 @@ async function showPlaces() {
                     <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
                         ${place.title}
                     </span>
-                      <button class="delete-btn" data-title="${place.title}" onclick="deletePlace('${place.title}')">✖</button> <!-- This is the delete button for each place -->
                 </div>
             `
       )
@@ -136,14 +135,40 @@ async function showPlaces() {
 }
 
 
-async function deletePlace(placeTitle) {
+function deleteValue() {
   showLoader();
   try {
-    // Ensure you're using the correct URL for your backend
-    const response = await fetch('https://matteo5353.github.io/chatgo-first-website/places/delete', { // Update this URL
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: placeTitle })
+    const locations = [...Alllocations];
+    const placesList = document.getElementById("placesList");
+
+    placesList.innerHTML = locations
+      .filter((place) => !place.isCity)
+      .map(
+        (place) => `
+                <div class="place-item" id="place-${place.title}">
+                    <span class="place-title" onclick="deleteData('${place._id}')">
+                        ${place.title}
+                </div>
+            `
+      )
+      .join("");
+
+    toggleMenu("placesMenu");
+    
+  } finally {
+    hideLoader();
+  }
+}
+
+
+
+async function deleteData(placeId) {
+  showLoader();
+  try {
+    const response = await fetch(`/${placeId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _id: placeId }),
     });
 
     // Check if the response is successful
@@ -155,10 +180,10 @@ async function deletePlace(placeTitle) {
     console.log("Place deleted from database successfully!");
 
     // After successful deletion, remove from Alllocations and UI
-    Alllocations = Alllocations.filter((place) => place.title !== placeTitle);
+    Alllocations = Alllocations.filter((place) => place._id !== placeId);
 
     // Remove the place item from the DOM
-    const placeElement = document.getElementById(`place-${placeTitle}`);
+    const placeElement = document.getElementById(`place-${placeId}`);
     if (placeElement) placeElement.remove();
 
     // Refresh the UI/menu
@@ -170,8 +195,6 @@ async function deletePlace(placeTitle) {
     hideLoader();
   }
 }
-
-
 
 
 
