@@ -320,20 +320,7 @@ button:hover {
   justify-content: space-between;
 }
 
-.delete-btn {
-  background: red;
-  color: white;
-  border: none;
-  font-size: 12px;
-  padding: 3px 7px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.2s ease-in-out;
-}
 
-.delete-btn:hover {
-  background-color: darkred;
-}
 #citiesHeader{
     text-align: center;
     font-size: 24px;
