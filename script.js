@@ -262,6 +262,33 @@ function backToMenu() {
   loadCitiesList();
 }
 
+function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        // Fill the form inputs with the detected location
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lon;
+
+        // Optional: if you're using Leaflet/OpenStreetMap, center the map too
+        if (typeof map !== 'undefined') {
+          map.setView([lat, lon], 13); // Adjust zoom level as needed
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Unable to retrieve your location. Please enter it manually.");
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by your browser.");
+  }
+}
+
+
 function toggleMenu(menuId) {
   document.querySelectorAll("#sidebar > div").forEach((div) => {
     div.classList.toggle("hidden", div.id !== menuId);
