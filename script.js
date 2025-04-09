@@ -262,36 +262,37 @@ function backToMenu() {
   loadCitiesList();
 }
 
-function getCurrentLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        // Fill the form inputs with the detected location
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lon;
-
-        // Optional: if you're using Leaflet/OpenStreetMap, center the map too
-        if (typeof map !== 'undefined') {
-          map.setView([lat, lon], 13); // Adjust zoom level as needed
+  function getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+  
+          // Update input fields
+          document.getElementById('latitude').value = lat;
+          document.getElementById('longitude').value = lon;
+  
+          // Optional: center the map if using Leaflet
+          if (typeof map !== 'undefined') {
+            map.setView([lat, lon], 13);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Unable to retrieve your location. Please enter it manually.");
+        },
+        {
+          enableHighAccuracy: true,  // Use GPS if available
+          timeout: 10000,            // Wait up to 10 seconds
+          maximumAge: 3000     // accept location from last 3s max
         }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        alert("Unable to retrieve your location. Please enter it manually.");
-      }
-      {
-        enableHighAccuracy: true,  // Use GPS if available
-        timeout: 5000,            // Wait up to 5 seconds
-        maximumAge: 0              // Don’t use cached location
-      }
-    );
-  } else {
-    alert("Geolocation is not supported by your browser.");
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
   }
-}
+
 
 
 function toggleMenu(menuId) {
