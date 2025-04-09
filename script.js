@@ -282,6 +282,11 @@ function getCurrentLocation() {
         console.error("Geolocation error:", error);
         alert("Unable to retrieve your location. Please enter it manually.");
       }
+      {
+        enableHighAccuracy: true,  // Use GPS if available
+        timeout: 5000,            // Wait up to 5 seconds
+        maximumAge: 0              // Don’t use cached location
+      }
     );
   } else {
     alert("Geolocation is not supported by your browser.");
