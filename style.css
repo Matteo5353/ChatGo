@@ -84,6 +84,37 @@ button {
   border: #333 1px solid;
 }
 
+.ideal-for {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  padding: 0.5em 1em;
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+  text-align-last: center; /* for some browsers */
+  cursor: pointer;
+
+  /* Better dropdown style */
+  background-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Style the dropdown options */
+.ideal-for option {
+  color: #333;
+  background-color: #fff;
+  padding: 0.5em;
+  font-size: 1rem;
+}
+
+
 .back-btn {
   background: #666;
   color: white;

@@ -134,6 +134,27 @@ async function showPlaces() {
   }
 }
 
+function idealForFilter() {
+  const selectedValue = document.getElementById("ideal").value;
+
+  // If default is selected, show all markers (not straight return cause otherwise can't show back again)
+  if (selectedValue === "None") {
+    markers.forEach(marker => map.addLayer(marker));
+    return;
+  }
+
+  // Hide/show markers based on selected value
+  markers.forEach((marker, index) => {
+    const location = Alllocations[index];
+    if (location.ideal === selectedValue) {
+      map.addLayer(marker);
+    } else {
+      map.removeLayer(marker);
+    }
+  });
+}
+
+
 
 function deleteValue() {
   showLoader();
