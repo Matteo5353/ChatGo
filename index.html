@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Travel Map</title>
+    <title>ChatGo</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -29,15 +29,18 @@
     <!-- Sidebar -->
     <div id="sidebar" class="hidden-sidebar">
       <div id="mainMenu" class="active">
-        <h4 id="citiesHeader">Cities</h4>
+        <h4 id="citiesHeader">Menu</h4>
 
         <div id="citiesList"></div>
         <div class="button-group">
-          <button class="primary-btn" onclick="showAddPlace(true)">
-            🏙️ Add City
-          </button>
-          <button class="primary-btn" onclick="showAddPlace(false)">
+          <button class="primary-btn" onclick="showAddPlace()">
             🌍 Add Place
+          </button>
+          <button class="primary-btn" onclick="deleteValue()">
+            ❌ Delete Place
+      </button>
+          <button class="secondary-btn" onclick="">
+             🔎 Search City
           </button>
           <button class="secondary-btn" onclick="showPlaces()">
               View Places
@@ -50,10 +53,6 @@
               <option value="Tourism">Tourism</option>
             </select>
           </button>                    
-          <button class="secondary-btn" onclick="deleteValue()">
-              Delete
-        </button>
-
         </div>
       </div>
 

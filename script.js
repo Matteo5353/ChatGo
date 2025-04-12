@@ -5,7 +5,6 @@ const MARKER_SIZE = 40;
 const API_URL = "https://openstreetmap-zue0.onrender.com/places";
 // const API_URL = "http://localhost:3000/places";
 let currentInfoWindow = null;
-let isAddingCity = false;
 let Alllocations = [];
 document.addEventListener("DOMContentLoaded", initMap);
 
@@ -17,7 +16,6 @@ async function initMap() {
       map
     );
     await loadLocations();
-    loadCitiesList();
   } finally {
     hideLoader();
   }
@@ -115,7 +113,6 @@ async function showPlaces() {
     const placesList = document.getElementById("placesList");
 
     placesList.innerHTML = locations
-      .filter((place) => !place.isCity)
       .map(
         (place) => `
                 <div class="place-item" id="place-${place.title}">
@@ -163,7 +160,6 @@ function deleteValue() {
     const placesList = document.getElementById("placesList");
 
     placesList.innerHTML = locations
-      .filter((place) => !place.isCity)
       .map(
         (place) => `
                 <div class="place-item" id="place-${place.title}">
@@ -218,10 +214,7 @@ async function deleteData(placeId) {
 }
 
 
-
-
-function showAddPlace(isCity) {
-  isAddingCity = isCity;
+function showAddPlace() {
   toggleMenu("addPlaceMenu");
 }
 
@@ -236,7 +229,6 @@ async function addPlace() {
       mapLink: document.getElementById("mapLink").value,
       ideal: document.getElementById("ideal").value,
       photo: await readFile(document.getElementById("placePhoto").files[0]),
-      isCity: isAddingCity,
     };
     if (!placeData.title || !placeData.latitude || !placeData.longitude)
       throw new Error("Please fill in all fields");
@@ -249,7 +241,6 @@ async function addPlace() {
     if (!response.ok) throw new Error("Failed to save location");
 
     await loadLocations();
-    if (isAddingCity) loadCitiesList();
     backToMenu();
     clearForm();
   } catch (error) {
@@ -260,27 +251,8 @@ async function addPlace() {
   }
 }
 
-function loadCitiesList() {
-  const citiesList = document.getElementById("citiesList");
-  fetch(API_URL)
-    .then((res) => res.json())
-    .then((locations) => {
-      citiesList.innerHTML = locations
-        .filter((place) => place.isCity)
-        .map(
-          (city) => `
-                    <div class="city-item" onclick="map.flyTo([${city.latitude}, ${city.longitude}], ${DEFAULT_ZOOM})">
-                        ${city.title}
-                    </div>
-                `
-        )
-        .join("");
-    });
-}
-
 function backToMenu() {
   toggleMenu("mainMenu");
-  loadCitiesList();
 }
 
 function getCurrentLocation() {
@@ -314,7 +286,6 @@ function getCurrentLocation() {
     alert("Geolocation is not supported by your browser.");
   }
 }
-
 
 
 function toggleMenu(menuId) {
