@@ -38,10 +38,12 @@
           </button>
           <button class="primary-btn" onclick="deleteValue()">
             ❌ Delete Place
-      </button>
-          <button class="secondary-btn" onclick="">
-             🔎 Search City
           </button>
+          <button class="secondary-btn" id="search-btn" onclick="searchCity()">
+            <span id="search-label">🔎 Search City</span>
+            <input type="text" id="city-input" placeholder="Type a city name..." />
+          </button>
+          <ul id="autocomplete-list"></ul>       
           <button class="secondary-btn" onclick="showPlaces()">
               View Places
           </button>

@@ -84,6 +84,54 @@ button {
   border: #333 1px solid;
 }
 
+#search-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+#city-input {
+  display: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 4px;
+  width: 160px;
+  background: transparent;
+}
+
+.secondary-btn.active #search-label {
+  display: none;
+}
+
+.secondary-btn.active #city-input {
+  display: inline-block;
+}
+
+
+#autocomplete-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+#autocomplete-list li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+#autocomplete-list li:hover {
+  background-color: rgb(89, 89, 89);
+}
+
+
 .ideal-for {
   appearance: none;
   -webkit-appearance: none;

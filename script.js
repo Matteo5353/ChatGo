@@ -15,6 +15,7 @@ async function initMap() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
       map
     );
+    document.getElementById('city-input').value = '';
     await loadLocations();
   } finally {
     hideLoader();
@@ -211,6 +212,51 @@ async function deleteData(placeId) {
   } finally {
     hideLoader();
   }
+}
+
+function searchCity() {
+  const button = document.getElementById('search-btn');
+  const input = document.getElementById('city-input');
+  const list = document.getElementById('autocomplete-list');
+
+  // Replace label with input
+  button.classList.add('active');
+  input.focus(); // optional: put cursor in input field
+
+  let debounceTimer;
+  input.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    const query = input.value;
+
+    if (query.length < 2) {
+      list.innerHTML = '';
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      fetch(`https://nominatim.openstreetmap.org/search?city=${query}&format=json&limit=5`)
+        .then(response => response.json())
+        .then(data => {
+          list.innerHTML = '';
+          data.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.display_name;
+            li.addEventListener('click', () => {
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+
+              map.flyTo([lat, lon], DEFAULT_ZOOM); 
+              list.innerHTML = '';
+              input.value = item.display_name;
+            });
+            list.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching city data:', error);
+        });
+    }, 300);
+  });
 }
 
 
