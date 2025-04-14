@@ -19,6 +19,7 @@ async function initMap() {
     await loadLocations();
   } finally {
     hideLoader();
+    trackUserLocation(map);
   }
 }
 
@@ -86,7 +87,7 @@ function showInfoWindow(e, place) {
     place.longitude.toFixed(4);
   infoWindow.querySelector(".info-ideal").textContent = place.ideal;
   infoWindow.querySelector(".info-description").textContent = place.description;
-
+  /*
   const mapLink = infoWindow.querySelector(".info-map-link");
   if (place.mapLink === "") {
     mapLink.style.display = "none";
@@ -95,7 +96,7 @@ function showInfoWindow(e, place) {
     mapLink.href = place.mapLink.startsWith("http")
       ? place.mapLink
       : `https://${place.mapLink}`;
-  }
+  }*/
 
   // Position
   const point = map.latLngToContainerPoint(e.latlng);
@@ -272,7 +273,7 @@ async function addPlace() {
       latitude: parseFloat(document.getElementById("latitude").value),
       longitude: parseFloat(document.getElementById("longitude").value),
       description: document.getElementById("description").value,
-      mapLink: document.getElementById("mapLink").value,
+      //mapLink: document.getElementById("mapLink").value,
       ideal: document.getElementById("ideal").value,
       photo: await readFile(document.getElementById("placePhoto").files[0]),
     };
@@ -356,6 +357,52 @@ function readFile(file) {
     reader.onload = (e) => resolve(e.target.result);
     reader.readAsDataURL(file);
   });
+}
+
+let userMarker = null;
+let userLocationWatchId = null;
+
+function trackUserLocation(map) {
+    if (!navigator.geolocation) {
+        console.warn('Geolocation not supported.');
+        return;
+    }
+
+    const pulsingIcon = L.divIcon({
+        className: '', // Avoid default Leaflet icon styles
+        html: '<div class="pulsing-dot"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10], // center the icon
+    });
+
+    userLocationWatchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const userCoords = [lat, lng];
+
+            if (!userMarker) {
+                // First time: create the marker
+                userMarker = L.marker(userCoords, {
+                    icon: pulsingIcon,
+                    interactive: false,
+                    zIndexOffset: 1000,
+                }).addTo(map);
+            } else {
+                // Update the marker position
+                userMarker.setLatLng(userCoords);
+            }
+
+        },
+        (error) => {
+            console.warn('Error getting location:', error);
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000,
+        }
+    );
 }
 
 function showLoader() {
