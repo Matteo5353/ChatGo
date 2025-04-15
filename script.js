@@ -302,6 +302,7 @@ function backToMenu() {
   toggleMenu("mainMenu");
 }
 
+
 function getCurrentLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -359,6 +360,41 @@ function readFile(file) {
   });
 }
 
+
+async function getMarkersCloseBy() {
+  const userCoords = trackUserLocation();
+  // First gets the markers that are close by the user
+  const uri = 'your_mongo_connection_string';
+  const client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    const db = client.db('your_db_name');
+    const markersCollection = db.collection('markers');
+
+    const markers = await markersCollection.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [userLng, userLat] // always [lng, lat]
+          },
+          $maxDistance: 5000 // 5km in meters
+        }
+      }
+    }).toArray();
+
+    return markers;
+
+  } catch (err) {
+    console.error(err);
+    return [];
+  } finally {
+    await client.close();
+  }
+}
+
+
 let userMarker = null;
 let userLocationWatchId = null;
 
@@ -402,7 +438,8 @@ function trackUserLocation(map) {
             maximumAge: 5000,
             timeout: 10000,
         }
-    );
+    ); 
+  return userCoords;
 }
 
 function showLoader() {
