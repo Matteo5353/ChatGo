@@ -33,6 +33,9 @@ const placeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Creating a 2d sphere - for getting the distance in km from the markers
+placeSchema.index({ location: '2dsphere' });
+
 const Place = mongoose.model('Place', placeSchema);
 
 // API Endpoints
