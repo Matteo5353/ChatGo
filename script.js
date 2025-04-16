@@ -361,9 +361,7 @@ function readFile(file) {
 }
 
 
-
-async function getMarkersCloseBy() {
-  //Instead of calling the func, carches the coords again. simple, no issues, not long code
+async function generateLoop() {
   try {
     const userCoords = await new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
@@ -384,25 +382,61 @@ async function getMarkersCloseBy() {
     const userLat = userCoords[0];
     const userLng = userCoords[1];
 
-    markers.forEach(marker => {
-      // Replace marker.lat and marker.lng with your actual property names
+    // Collect nearby markers' coordinates in an array
+    const nearbyCoordinates = Alllocations.filter(location => {
       const distance = getDistanceFromLatLonInKm(
         userLat,
         userLng,
-        marker.getLatLng().lat,
-        marker.getLatLng().lng
+        location.latitude,
+        location.longitude
       );
+      return distance <= .8;  // Only include markers within 5km
+    }).map(loc => [loc.latitude, loc.longitude]);
 
-      if (distance <= 5) {
-        map.addLayer(marker);
-      } else {
-        map.removeLayer(marker);
-      }
-    });
+    console.log("Nearby markers' coordinates:", nearbyCoordinates);
+
+    // Now that you have the nearby coordinates, you can use them to draw the route
+    if (nearbyCoordinates.length > 0) {
+      drawRouteOnMap(userLat, userLng, nearbyCoordinates, map);
+    }
 
   } catch (error) {
     console.error("Error in getMarkersCloseBy:", error);
   }
+}
+
+
+function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
+  const waypoints = [
+    [userLng, userLat], // Start at the user's location (OSRM uses [lng, lat])
+    ...nearbyCoordinates.map(coord => [coord[1], coord[0]]), // Convert from [lat, lng] to [lng, lat]
+    [userLng, userLat]   // End back at the user's location
+  ];
+
+  const waypointsStr = waypoints.map(point => point.join(',')).join(';'); // OSRM expects the coordinates as a string
+
+  // OSRM route API URL
+  const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=full&geometries=geojson`;
+
+  fetch(osrmUrl)
+    .then(response => response.json())
+    .then(routeGeoJSON => {
+      if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
+        // Draw the route on the map
+        L.geoJSON(routeGeoJSON.routes[0].geometry, {
+          style: {
+            color: '#ff5733',
+            weight: 4,
+            opacity: 0.8
+          }
+        }).addTo(map);
+      } else {
+        console.error("No route found");
+      }
+    })
+    .catch(err => {
+      console.error("Error fetching route:", err);
+    });
 }
 
 
