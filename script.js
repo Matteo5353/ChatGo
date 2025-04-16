@@ -361,36 +361,47 @@ function readFile(file) {
 }
 
 
+
 async function getMarkersCloseBy() {
-  const userCoords = trackUserLocation();
-  // First gets the markers that are close by the user
-  const uri = 'your_mongo_connection_string';
-  const client = new MongoClient(uri);
-
+  //Instead of calling the func, carches the coords again. simple, no issues, not long code
   try {
-    await client.connect();
-    const db = client.db('your_db_name');
-    const markersCollection = db.collection('markers');
-
-    const markers = await markersCollection.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [userLng, userLat] // always [lng, lat]
-          },
-          $maxDistance: 5000 // 5km in meters
+    const userCoords = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 5000,
+          timeout: 10000,
         }
+      );
+    });
+
+    const userLat = userCoords[0];
+    const userLng = userCoords[1];
+
+    markers.forEach(marker => {
+      // Replace marker.lat and marker.lng with your actual property names
+      const distance = getDistanceFromLatLonInKm(
+        userLat,
+        userLng,
+        marker.getLatLng().lat,
+        marker.getLatLng().lng
+      );
+
+      if (distance <= 5) {
+        map.addLayer(marker);
+      } else {
+        map.removeLayer(marker);
       }
-    }).toArray();
+    });
 
-    return markers;
-
-  } catch (err) {
-    console.error(err);
-    return [];
-  } finally {
-    await client.close();
+  } catch (error) {
+    console.error("Error in getMarkersCloseBy:", error);
   }
 }
 
@@ -439,7 +450,19 @@ function trackUserLocation(map) {
             timeout: 10000,
         }
     ); 
-  return userCoords;
+}
+
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 function showLoader() {
