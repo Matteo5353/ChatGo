@@ -87,7 +87,6 @@ function showInfoWindow(e, place) {
     place.longitude.toFixed(4);
   infoWindow.querySelector(".info-ideal").textContent = place.ideal;
   infoWindow.querySelector(".info-description").textContent = place.description;
-  /*
   const mapLink = infoWindow.querySelector(".info-map-link");
   if (place.mapLink === "") {
     mapLink.style.display = "none";
@@ -96,7 +95,7 @@ function showInfoWindow(e, place) {
     mapLink.href = place.mapLink.startsWith("http")
       ? place.mapLink
       : `https://${place.mapLink}`;
-  }*/
+  }
 
   // Position
   const point = map.latLngToContainerPoint(e.latlng);
@@ -273,7 +272,7 @@ async function addPlace() {
       latitude: parseFloat(document.getElementById("latitude").value),
       longitude: parseFloat(document.getElementById("longitude").value),
       description: document.getElementById("description").value,
-      //mapLink: document.getElementById("mapLink").value,
+      mapLink: document.getElementById("mapLink").value,
       ideal: document.getElementById("ideal").value,
       photo: await readFile(document.getElementById("placePhoto").files[0]),
     };
@@ -304,6 +303,11 @@ function backToMenu() {
 
 
 function getCurrentLocation() {
+  // Remove tap location marker if it exists
+  if (typeof selectedLocationMarker !== 'undefined' && selectedLocationMarker) {
+    map.removeLayer(selectedLocationMarker);
+    selectedLocationMarker = null;
+  }
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -316,7 +320,7 @@ function getCurrentLocation() {
 
         // Optional: if you're using Leaflet/OpenStreetMap, center the map too
         if (typeof map !== 'undefined') {
-          map.setView([lat, lon], 13); // Adjust zoom level as needed
+          map.setView([lat, lon]); // Adjust zoom level as needed
         }
       },
       (error) => {
@@ -333,6 +337,47 @@ function getCurrentLocation() {
   } else {
     alert("Geolocation is not supported by your browser.");
   }
+}
+
+let isSelectingLocation = false;
+let mapClickListener = null;
+
+function tapLocation() {
+  // If already selecting, remove previous listener first
+  if (mapClickListener) {
+    map.off('click', mapClickListener);
+    mapClickListener = null;
+  }
+
+  isSelectingLocation = true;
+
+  // Define the listener
+  mapClickListener = function (e) {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+
+    // Fill form fields
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lon;
+
+    // Optional: center the map there
+    map.setView([lat, lon]);
+
+    // If you want to place a marker on the tapped location:
+    if (typeof selectedLocationMarker !== 'undefined' && selectedLocationMarker) {
+      selectedLocationMarker.setLatLng([lat, lon]);
+    } else {
+      selectedLocationMarker = L.marker([lat, lon]).addTo(map);
+    }
+
+    // Turn off selection mode after a tap (optional)
+    map.off('click', mapClickListener);
+    mapClickListener = null;
+    isSelectingLocation = false;
+  };
+
+  // Attach the listener
+  map.on('click', mapClickListener);
 }
 
 

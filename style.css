@@ -84,6 +84,18 @@ button {
   border: #333 1px solid;
 }
 
+.button-location {
+  display: flex;
+  gap: 10px; /* space between buttons */
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
+}
+
+.button-location button {
+  flex: 1; /* make buttons share space evenly */
+  min-width: 120px; /* optional: prevent them from shrinking too much */
+}
+
+
 #search-container {
   position: absolute;
   top: 10px;
@@ -131,6 +143,12 @@ button {
   background-color: rgb(89, 89, 89);
 }
 
+@media (max-width: 768px) {
+  #autocomplete-list {
+    max-height: 100vh; /* Full viewport height */
+    overflow-y: auto;  /* Enable vertical scroll */
+  }
+}
 
 .ideal-for {
   appearance: none;

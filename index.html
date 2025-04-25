@@ -75,7 +75,11 @@
           placeholder="Location Name"
           required
         />
-        <button type="button" onclick="getCurrentLocation()">📍 Use My Location</button>
+        <div class="button-location">
+          <button type="button" onclick="getCurrentLocation()">📍 Use My Location</button>
+          <button type="button" onclick="tapLocation()">🔻 Tap Location</button>
+        </div>
+        
         <input
           type="number"
           step="any"
@@ -90,12 +94,11 @@
           placeholder="Longitude"
           required
         />
-        <!-- <input
+        <input
           type="text"
           id="mapLink"
           placeholder="Google Maps Link"
-          required
-        /> -->
+        />
         <select name="ideal" id="ideal">
           <option value="None" selected disabled>Ideal For</option>
           <option value="Day">Day</option>
