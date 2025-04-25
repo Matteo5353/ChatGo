@@ -113,19 +113,22 @@ async function showPlaces() {
     const locations = [...Alllocations];
     const placesList = document.getElementById("placesList");
 
-    placesList.innerHTML = locations
-      .map(
-        (place) => `
-                <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
-                        ${place.title}
-                    </span>
-                </div>
+    placesList.innerHTML = `
+      <div class="places-container">
+        ${locations
+          .map(
+            (place) => `
+              <div class="place-item" id="place-${place.title}">
+                <span class="place-title" onclick="map.flyTo([${place.latitude}, ${place.longitude}], ${DEFAULT_ZOOM})">
+                  ${place.title}
+                </span>
+              </div>
             `
-      )
-      .join("");
+          )
+          .join("")}
+      </div>`;
 
-    toggleMenu("placesMenu");
+      toggleMenu("placesMenu");
     
   } finally {
     hideLoader();

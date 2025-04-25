@@ -84,13 +84,6 @@ button {
   border: #333 1px solid;
 }
 
-@media (max-width: 768px) {
-  .secondary-btn {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-}
-
 .button-location {
   display: flex;
   gap: 10px; /* space between buttons */
@@ -410,6 +403,14 @@ button:hover {
   font-weight: 500;
 }
 
+@media (max-width: 768px) {
+  .places-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 .place-item {
   display: flex;  
   cursor: pointer;
@@ -423,7 +424,6 @@ button:hover {
   text-align: center;
   font-size: 16px;
   font-weight: 500;
-  margin-right: 30px;  /* Space between title and delete button */
   justify-content: space-between;
 }
 
