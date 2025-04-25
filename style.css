@@ -181,6 +181,10 @@ button:hover {
   transform: translateY(-1px);
 }
 
+#addPlaceMenu {
+  scroll-behavior: smooth; /* 👈 Add this */
+}
+
 #addPlaceMenu input,
 #addPlaceMenu textarea, #addPlaceMenu select {
   width: 100%;
@@ -195,6 +199,13 @@ button:hover {
 #addPlaceMenu textarea {
   height: 100px;
   resize: vertical;
+}
+
+@media (max-width: 768px) {
+  #addPlaceMenu {
+    max-height: 100vh; /* Full viewport height */
+    overflow-y: auto;  /* Enable vertical scroll */
+  }
 }
 
 #loader {
@@ -398,6 +409,12 @@ button:hover {
   font-weight: 500;
   margin-right: 30px;  /* Space between title and delete button */
   justify-content: space-between;
+}
+
+.arrow-icon {
+  transform-origin: center center;
+  font-size: 14px;
+  color: #444;
 }
 
 

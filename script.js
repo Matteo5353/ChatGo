@@ -390,7 +390,7 @@ async function generateLoop() {
         location.latitude,
         location.longitude
       );
-      return distance <= .8;  // Only include markers within 5km
+      return distance <= .85;  // Only include markers within 5km
     }).map(loc => [loc.latitude, loc.longitude]);
 
     console.log("Nearby markers' coordinates:", nearbyCoordinates);
@@ -407,38 +407,93 @@ async function generateLoop() {
 
 
 function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
+  // Step 1: Compute distance from user to each marker
+  const toRad = deg => deg * Math.PI / 180;
+  const haversine = (lat1, lng1, lat2, lng2) => {
+    const R = 6371e3; // meters
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Step 2: Sort markers using a greedy "nearest neighbor" approach
+  const sortedMarkers = [];
+  let current = { lat: userLat, lng: userLng };
+  let remaining = [...nearbyCoordinates]; // shallow copy
+
+  while (remaining.length > 0) {
+    let nearestIndex = 0;
+    let minDist = Infinity;
+
+    for (let i = 0; i < remaining.length; i++) {
+      const dist = haversine(current.lat, current.lng, remaining[i][0], remaining[i][1]);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIndex = i;
+      }
+    }
+
+    const next = remaining.splice(nearestIndex, 1)[0];
+    sortedMarkers.push(next);
+    current = { lat: next[0], lng: next[1] };
+  }
+
+  // Step 3: Build waypoints [user, sortedMarkers..., user]
   const waypoints = [
-    [userLng, userLat], // Start at the user's location (OSRM uses [lng, lat])
-    ...nearbyCoordinates.map(coord => [coord[1], coord[0]]), // Convert from [lat, lng] to [lng, lat]
-    [userLng, userLat]   // End back at the user's location
+    [userLng, userLat], // start
+    ...sortedMarkers.map(coord => [coord[1], coord[0]]),
+    [userLng, userLat]  // return to start
   ];
 
-  const waypointsStr = waypoints.map(point => point.join(',')).join(';'); // OSRM expects the coordinates as a string
+  const waypointsStr = waypoints.map(point => point.join(',')).join(';');
 
-  // OSRM route API URL
+  // Step 4: Request the route
   const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=full&geometries=geojson`;
 
-  fetch(osrmUrl)
-    .then(response => response.json())
-    .then(routeGeoJSON => {
-      if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
-        // Draw the route on the map
-        L.geoJSON(routeGeoJSON.routes[0].geometry, {
-          style: {
-            color: '#ff5733',
-            weight: 4,
-            opacity: 0.8
-          }
-        }).addTo(map);
-      } else {
-        console.error("No route found");
-      }
-    })
-    .catch(err => {
-      console.error("Error fetching route:", err);
-    });
-}
+fetch(osrmUrl)
+  .then(response => response.json())
+  .then(routeGeoJSON => {
+    if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
+      const route = routeGeoJSON.routes[0].geometry;
 
+      // 1. Draw the main route line
+      const latlngs = route.coordinates.map(coord => [coord[1], coord[0]]);
+      const routeLine = L.geoJSON(route, {
+        style: {
+          color: '#ff5733',
+          weight: 4,
+          opacity: 0.8
+        }
+      }).addTo(map);
+
+      // 2. Add directional arrows along the line (every N points)
+      for (let i = 0; i < latlngs.length - 1; i += 25) {
+        const from = latlngs[i];
+        const to = latlngs[i + 1];
+
+        const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
+
+        // Create arrow icon rotated toward next point
+        const arrowIcon = L.divIcon({
+          className: 'arrow-icon',
+          html: `<div style="transform: rotate(${angle}deg);">➤</div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        });
+
+        // Place the arrow marker
+        L.marker(from, { icon: arrowIcon }).addTo(map);
+      }
+    } else {
+      console.error("No route found");
+    }
+  })
+  .catch(err => {
+    console.error("Error fetching route:", err);
+  });
+}
 
 let userMarker = null;
 let userLocationWatchId = null;
@@ -480,7 +535,7 @@ function trackUserLocation(map) {
         },
         {
             enableHighAccuracy: true,
-            maximumAge: 5000,
+            maximumAge: 1000,
             timeout: 10000,
         }
     ); 
