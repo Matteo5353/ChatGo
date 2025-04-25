@@ -254,24 +254,24 @@ button:hover {
   color: white;
   width: 320px;
   padding: 20px;
+  padding-bottom: 60px; /* Additional bottom space */
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   display: none;
-  padding-bottom: 60px;
   max-height: 500px;
-  padding: 20px;
-  /* bottom: 30px; */
-    /* overflow: auto;
-    overflow: scroll;
-    scrollbar-width: none; */
 }
 
 @media (max-width: 768px) {
   #icon-info {
-    max-height: 70vh; /* Full viewport height */
-    overflow-y: auto;  /* Enable vertical scroll */
+    max-height: 70vh;      /* More responsive on mobile */
+    overflow-y: auto;      /* Enable scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scroll for iOS */
   }
+}
+
+#icon-info::-webkit-scrollbar {
+  display: none; /* Hide scrollbar in WebKit browsers */
 }
 
 #icon-info::-webkit-scrollbar {
