@@ -145,7 +145,7 @@ button {
 
 @media (max-width: 768px) {
   #autocomplete-list {
-    max-height: 100vh; /* Full viewport height */
+    max-height: 50vh; /* Full viewport height */
     overflow-y: auto;  /* Enable vertical scroll */
   }
 }
