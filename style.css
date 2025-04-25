@@ -84,6 +84,13 @@ button {
   border: #333 1px solid;
 }
 
+@media (max-width: 768px) {
+  .secondary-btn {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
 .button-location {
   display: flex;
   gap: 10px; /* space between buttons */
@@ -94,7 +101,6 @@ button {
   flex: 1; /* make buttons share space evenly */
   min-width: 120px; /* optional: prevent them from shrinking too much */
 }
-
 
 #search-container {
   position: absolute;
@@ -254,24 +260,17 @@ button:hover {
   color: white;
   width: 320px;
   padding: 20px;
-  padding-bottom: 60px; /* Additional bottom space */
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   display: none;
+  padding-bottom: 60px;
   max-height: 500px;
-}
-
-@media (max-width: 768px) {
-  #icon-info {
-    max-height: 70vh;      /* More responsive on mobile */
-    overflow-y: auto;      /* Enable scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scroll for iOS */
-  }
-}
-
-#icon-info::-webkit-scrollbar {
-  display: none; /* Hide scrollbar in WebKit browsers */
+  padding: 20px;
+  /* bottom: 30px; */
+    /* overflow: auto;
+    overflow: scroll;
+    scrollbar-width: none; */
 }
 
 #icon-info::-webkit-scrollbar {
