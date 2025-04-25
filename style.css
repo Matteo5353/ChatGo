@@ -131,7 +131,6 @@ button {
   margin: 0;
   padding: 0;
   max-height: 150px;
-  overflow-y: auto;
 }
 
 #autocomplete-list li {
@@ -143,12 +142,6 @@ button {
   background-color: rgb(89, 89, 89);
 }
 
-@media (max-width: 768px) {
-  #autocomplete-list {
-    max-height: 50vh; /* Full viewport height */
-    overflow-y: auto;  /* Enable vertical scroll */
-  }
-}
 
 .ideal-for {
   appearance: none;
@@ -221,7 +214,7 @@ button:hover {
 
 @media (max-width: 768px) {
   #addPlaceMenu {
-    max-height: 100vh; /* Full viewport height */
+    max-height: 70vh; /* Full viewport height */
     overflow-y: auto;  /* Enable vertical scroll */
   }
 }
@@ -428,6 +421,14 @@ button:hover {
   margin-right: 30px;  /* Space between title and delete button */
   justify-content: space-between;
 }
+
+@media (max-width: 768px) {
+  .place-item {
+    max-height: 70vh; /* Full viewport height */
+    overflow-y: auto;  /* Enable vertical scroll */
+  }
+}
+
 
 .arrow-icon {
   transform-origin: center center;
