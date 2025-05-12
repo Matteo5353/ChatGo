@@ -171,7 +171,64 @@ button {
   padding: 0.5em;
   font-size: 1rem;
 }
+/* Sidebar and slider styles */
+.time-price {
+  padding: 16px;
+  border-top: 1px solid #ddd;
+}
 
+.time-price h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.range-container {
+  margin-bottom: 20px;
+}
+
+.range-slider {
+  width: 100%;
+  background: transparent;
+  margin: 10px 0;
+}
+
+.range-slider:focus {
+  outline: none;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  background: #ff385c;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.range-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+}
+
+.range-value {
+  text-align: right;
+  font-size: 1rem;      /* Make sure this is big enough to be visible */
+  font-weight: 500;
+  color: white;          /* Ensure the color is not the same as the background */
+  margin-bottom: 4px;
+  z-index: 9999;
+}
+
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #666;
+}
 
 .back-btn {
   background: #666;

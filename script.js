@@ -155,6 +155,30 @@ function idealForFilter() {
   });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const timeSlider = document.getElementById('timeRange');
+  const priceSlider = document.getElementById('priceRange');
+  const timeValue = document.getElementById('timeValue');
+  const priceValue = document.getElementById('priceValue');
+
+  // Show value while dragging price slider
+  priceSlider.addEventListener('input', () => {
+    priceValue.textContent = `$${priceSlider.value}`;
+  });
+
+  // Show value while dragging time slider
+  timeSlider.addEventListener('input', () => {
+    const value = parseInt(timeSlider.value, 10);
+    if (value >= 240) {
+      timeValue.textContent = '4h+';
+    } else if (value >= 60) {
+      timeValue.textContent = `${Math.floor(value / 60)}h ${value % 60}min`;
+    } else {
+      timeValue.textContent = `${value} min`;
+    }
+  });
+});
+
 
 
 function deleteValue() {
