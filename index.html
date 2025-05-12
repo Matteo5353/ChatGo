@@ -36,6 +36,9 @@
           <button class="primary-btn" onclick="showAddPlace()">
             🌍 Add Place
           </button>
+          <button class="primary-btn" onclick="createTour()">
+            Create a Tour
+          </button>
           <button class="primary-btn" onclick="deleteValue()">
             ❌ Delete Place
           </button>
@@ -54,9 +57,6 @@
               <option value="Night Life">Night Life</option>
               <option value="Tourism">Tourism</option>
             </select>
-          </button>
-          <button class="secondary-btn" onclick="generateLoop()">
-              Generate a Loop
           </button>
         </div>
       </div>
@@ -113,7 +113,14 @@
         <input type="file" id="placePhoto" accept="image/*" required />
         <button class="submit-btn" onclick="addPlace()">Save Location</button>
       </div>
+
+      <div id="generate-loop" class="hidden">
+        <button class="back-btn" onclick="backToMenu()">⬅ Back to Main</button>
+        <button class="secondary-btn" onclick="generateTour()"> Generate the Tour</button>
+        <button type="button" onclick="tapLocation()">🔻 Add Stop</button>
+      </div>
     </div>
+
 
     <!-- Info Window -->
     <div id="icon-info">

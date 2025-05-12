@@ -163,16 +163,19 @@ function deleteValue() {
     const locations = [...Alllocations];
     const placesList = document.getElementById("placesList");
 
-    placesList.innerHTML = locations
-      .map(
-        (place) => `
-                <div class="place-item" id="place-${place.title}">
-                    <span class="place-title" onclick="deleteData('${place._id}')">
-                        ${place.title}
-                </div>
-            `
-      )
-      .join("");
+    placesList.innerHTML = `
+    <div class="places-container">
+        ${locations
+        .map(
+          (place) => `
+                  <div class="place-item" id="place-${place.title}">
+                      <span class="place-title" onclick="deleteData('${place._id}')">
+                          ${place.title}
+                  </div>
+              `
+        )
+        .join("")}
+      </div>`;
 
     toggleMenu("placesMenu");
     
@@ -408,8 +411,11 @@ function readFile(file) {
   });
 }
 
+function createTour() {
+  toggleMenu("generate-loop");
+}
 
-async function generateLoop() {
+async function generateTour() {
   try {
     const userCoords = await new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
