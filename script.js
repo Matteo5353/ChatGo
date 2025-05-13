@@ -166,6 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     priceValue.textContent = `$${priceSlider.value}`;
   });
 
+
+  let timeSelected = 240; // default to 240 minutes
+  let sliderTimeout;
+
   // Show value while dragging time slider
   timeSlider.addEventListener('input', () => {
     const value = parseInt(timeSlider.value, 10);
@@ -176,7 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       timeValue.textContent = `${value} min`;
     }
+    timeSelected = value; //for ammending the loop
   });
+
+  
+  // Reset timer every time user moves the slider
+  clearTimeout(sliderTimeout);
+
+  sliderTimeout = setTimeout(() => {
+      console.log(`User selected time: ${timeSelected} minutes`);
+      generateTour(timeSelected); // custom version
+    }, 10000); // wait 10 seconds after user stops moving
+
+
 });
 
 
@@ -422,7 +438,7 @@ function clearForm() {
   document.getElementById("latitude").value = "";
   document.getElementById("longitude").value = "";
   document.getElementById("mapLink").value = "";
-  document.getElementById("ideal").value = "None";
+  document.getElementById("ideal").value = "";
   document.getElementById("description").value = "";
   document.getElementById("placePhoto").value = "";
 }
@@ -439,52 +455,69 @@ function createTour() {
   toggleMenu("generate-loop");
 }
 
-async function generateTour() {
+async function generateTour(timeMinutes) {
+  showLoader();
   try {
     const userCoords = await new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve([position.coords.latitude, position.coords.longitude]);
-        },
-        (error) => {
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 5000,
-          timeout: 10000,
-        }
+        (position) => resolve([position.coords.latitude, position.coords.longitude]),
+        (error) => reject(error),
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
       );
     });
 
-    const userLat = userCoords[0];
-    const userLng = userCoords[1];
+    const [userLat, userLng] = userCoords;
+    const walkingDistanceLimit = (timeMinutes / 60) * 5; // e.g. 5 km/h pace
 
-    // Collect nearby markers' coordinates in an array
-    const nearbyCoordinates = Alllocations.filter(location => {
-      const distance = getDistanceFromLatLonInKm(
-        userLat,
-        userLng,
-        location.latitude,
-        location.longitude
-      );
-      return distance <= .85;  // Only include markers within 5km
-    }).map(loc => [loc.latitude, loc.longitude]);
+    // Filter markers within radius (3 km for example)
+    const nearbyLocations = Alllocations.filter(loc => {
+      const dist = getDistanceFromLatLonInKm(userLat, userLng, loc.latitude, loc.longitude);
+      return dist <= 10;
+    });
 
-    console.log("Nearby markers' coordinates:", nearbyCoordinates);
-
-    // Now that you have the nearby coordinates, you can use them to draw the route
-    if (nearbyCoordinates.length > 0) {
-      drawRouteOnMap(userLat, userLng, nearbyCoordinates, map);
+    if (nearbyLocations.length === 0) {
+      console.warn("No nearby markers.");
+      return;
     }
 
+    // Map marker coordinates for the route
+    const routeCoords = nearbyLocations.map(loc => [loc.latitude, loc.longitude]);
+
+    // Include user position at the start
+    const fullRoute = [[userLat, userLng], ...routeCoords];
+
+    // TRIAL FOR MODIFYING THE TOUR BASED OF THE TIME SELECTION OF THE USER.
+ /*   console.log(`Total route distance: ${totalDistance.toFixed(2)} km`);
+    console.log(`Time allows: ${walkingDistanceLimit.toFixed(2)} km`);
+
+    // Check if distance exceeds limit
+    if (totalDistance <= walkingDistanceLimit) {
+      drawRouteOnMap(userLat, userLng, routeCoords, map); // draw tour
+    } else {
+      console.warn("Selected time is too short for this tour.");
+      // Time not enough for full route
+      if (currentRouteLayer) {
+        map.removeLayer(currentRouteLayer);
+        currentRouteLayer = null;
+      }
+    }*/
+   drawRouteOnMap(userLat, userLng, routeCoords, map); // draw tour
+
   } catch (error) {
-    console.error("Error in getMarkersCloseBy:", error);
+    console.error("Error generating tour:", error);
+  } finally {
+    hideLoader();
   }
 }
 
 
+let currentRouteLayer = null;
+
 function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
+  // Remove previous route if it exists
+  if (currentRouteLayer) {
+    map.removeLayer(currentRouteLayer);
+  }
   // Step 1: Compute distance from user to each marker
   const toRad = deg => deg * Math.PI / 180;
   const haversine = (lat1, lng1, lat2, lng2) => {
@@ -527,6 +560,7 @@ function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
 
   const waypointsStr = waypoints.map(point => point.join(',')).join(';');
 
+
   // Step 4: Request the route
   const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=full&geometries=geojson`;
 
@@ -538,7 +572,7 @@ fetch(osrmUrl)
 
       // 1. Draw the main route line
       const latlngs = route.coordinates.map(coord => [coord[1], coord[0]]);
-      const routeLine = L.geoJSON(route, {
+      currentRouteLayer = L.geoJSON(route, {
         style: {
           color: '#ff5733',
           weight: 4,
