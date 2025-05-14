@@ -579,3 +579,146 @@ button:hover {
 }
 
   
+/* chat.html css relative - in a second moment have to separate the two*/
+
+#background {
+  background-color: #f0f2f5;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background-color: darkgray;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+}
+
+.profile-button:hover {
+  background-color: gray;
+}
+
+
+.chat-container {
+  position: relative;
+  width: 1300px;
+  height: 600px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  padding: 16px;
+}
+
+.contacts-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 60px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.contact-row {
+  background-color: #f9f9f9;
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;     /* Force horizontal layout */
+  align-items: center;     /* Vertical alignment of items */
+  justify-content: flex-start;
+  gap: 20px;               /* Space between columns */
+  width: 100%;
+  overflow-x: auto;        /* Allow scroll if too many columns */
+}
+
+
+.contact-row span {
+  min-width: 120px;        /* Or fixed: width: 120px; */
+  flex-shrink: 0;          /* Prevent shrinking */
+  text-align: left;
+}
+
+
+.contact-row:hover {
+  background-color: #e6e6e6;
+}
+
+.profile-pic {
+  width: 5px;
+  height: 5px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-pic img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;     /* Makes it a circle */
+  object-fit: cover;      /* Ensures it fills the area without distortion */
+  display: block;
+}
+
+.profile-pic img:hover {
+  transform: scale(1.3); /* Grows in place */
+  z-index: 10;
+  cursor: pointer;
+}
+
+.name {
+  font-weight: bold;
+  color: #333;
+}
+
+.contact-info {
+  font-size: 0.9em;
+  color: #777;
+  max-width: 180px;
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.add-button {
+  position: absolute;
+  bottom: 120px;
+  left: 60px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background-color: #007bff;
+  font-size: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+  z-index: 9999;
+  display: flex;              /* NEW: Use flex to center contents */
+  align-items: center;
+  justify-content: center;
+  line-height: 1;             /* Ensures consistent height for text */
+  padding: 0; 
+}
+
+.add-button:hover {
+  background-color: #0056b3;
+}
