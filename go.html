@@ -51,7 +51,15 @@
             <h3>Time</h3>
             <div class="range-container">
                 <div class="range-value" id="timeValue"></div>
-                <input type="range" id="timeRange" value="60" min="0" max="240" class="range-slider">
+                    <input 
+                    type="range" 
+                    id="timeRange" 
+                    value="60" 
+                    min="0" 
+                    max="240" 
+                    class="range-slider" 
+                    aria-label="Select time range"
+                    />
                 <div class="range-labels">
                     <span>0 min</span>
                     <span>4h+</span>
@@ -60,14 +68,22 @@
             <h3>Price</h3>
             <div class="range-container">
                 <div class="range-value" id="priceValue"></div>
-                <input type="range" id="priceRange" value="500" min="0" max="1000" class="range-slider">
+                    <input 
+                    type="range" 
+                    id="priceRange" 
+                    value="500" 
+                    min="0" 
+                    max="1000" 
+                    class="range-slider" 
+                    aria-label="Select price range"
+                    />
                 <div class="range-labels">
                     <span>$0</span>
                     <span>$1000+</span>
                 </div>
             </div>
         </div>
-        </div>
+
     </div>
 
     <div id="placesMenu" class="hidden">
