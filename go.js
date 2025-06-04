@@ -4,11 +4,11 @@ var DEFAULT_ZOOM = 14;
 var MARKER_SIZE = 40;
 //const API_URL = "https://openstreetmap-zue0.onrender.com/places";
 
+
 // const API_URL = "http://localhost:3000/places";
 var currentInfoWindow = null;
 var Alllocations = [];
 document.addEventListener("DOMContentLoaded", initMap);
-initSliders();
 
 
 async function initMap() {
@@ -164,39 +164,46 @@ function idealForFilter() {
   });
 }
 
-function initSliders() {
+document.addEventListener('DOMContentLoaded', () => {
   const timeSlider = document.getElementById('timeRange');
   const priceSlider = document.getElementById('priceRange');
   const timeValue = document.getElementById('timeValue');
   const priceValue = document.getElementById('priceValue');
 
-  if (!timeSlider || !priceSlider || !timeValue || !priceValue) {
-    console.warn('Slider elements missing - skipping init');
-    return;
-  }
-
-  // Update time display based on slider value
-  function updateTimeDisplay(value) {
-    const val = parseInt(value, 10);
-    if (val >= 240) {
-      timeValue.textContent = '4h+';
-    } else if (val >= 60) {
-      timeValue.textContent = `${Math.floor(val / 60)}h ${val % 60}min`;
-    } else {
-      timeValue.textContent = `${val} min`;
-    }
-  }
-
-  // Initialize display right away
-  updateTimeDisplay(timeSlider.value);
-  priceValue.textContent = `$${priceSlider.value}`;
-
-  // Attach live input listeners
-  timeSlider.addEventListener('input', () => updateTimeDisplay(timeSlider.value));
+  // Show value while dragging price slider
   priceSlider.addEventListener('input', () => {
     priceValue.textContent = `$${priceSlider.value}`;
   });
-}
+
+
+  var timeSelected = 240; // default to 240 minutes
+  var sliderTimeout;
+
+  // Show value while dragging time slider
+  timeSlider.addEventListener('input', () => {
+    const value = parseInt(timeSlider.value, 10);
+    if (value >= 240) {
+      timeValue.textContent = '4h+';
+    } else if (value >= 60) {
+      timeValue.textContent = `${Math.floor(value / 60)}h ${value % 60}min`;
+    } else {
+      timeValue.textContent = `${value} min`;
+    }
+    timeSelected = value; //for ammending the loop
+  });
+
+  
+  // Reset timer every time user moves the slider
+  clearTimeout(sliderTimeout);
+
+  sliderTimeout = setTimeout(() => {
+      console.log(`User selected time: ${timeSelected} minutes`);
+      generateTour(timeSelected); // custom version
+    }, 10000); // wait 10 seconds after user stops moving
+
+
+});
+
 
 
 function devareValue() {
@@ -265,7 +272,7 @@ async function devareData(placeId) {
 function searchCity() {
   const button = document.getElementById('search-btn');
   const input = document.getElementById('city-input');
-  const list = document.getElementById('autocomplete-list');
+  const list = document.getElementById('autocompvare-list');
 
   // Replace label with input
   button.classList.add('active');
