@@ -8,6 +8,7 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
+
 // Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

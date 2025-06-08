@@ -2,7 +2,7 @@ var map = null;
 var markers = [];
 var DEFAULT_ZOOM = 14;
 var MARKER_SIZE = 40;
-//const API_URL = "https://openstreetmap-zue0.onrender.com/places";
+//const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
 
 
 // const API_URL = "http://localhost:3000/places";
@@ -272,7 +272,7 @@ async function devareData(placeId) {
 function searchCity() {
   const button = document.getElementById('search-btn');
   const input = document.getElementById('city-input');
-  const list = document.getElementById('autocompvare-list');
+  const list = document.getElementById('autocomplete-list');
 
   // Replace label with input
   button.classList.add('active');
@@ -396,9 +396,9 @@ function getCurrentLocation() {
 
 var isSelectingLocation = false;
 var mapClickListener = null;
+var addedStops = []; 
 
 function tapLocation() {
-  // If already selecting, remove previous listener first
   if (mapClickListener) {
     map.off('click', mapClickListener);
     mapClickListener = null;
@@ -406,34 +406,40 @@ function tapLocation() {
 
   isSelectingLocation = true;
 
-  // Define the listener
-  mapClickListener = function (e) {
-    const lat = e.latlng.lat;
-    const lon = e.latlng.lng;
+  // At the same time gets and return the coords - you can't return it later cause 
+  // the func stops running but the user might still have to tap
+  return new Promise((resolve) => {
+    mapClickListener = function (e) {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
 
-    // Fill form fields
-    document.getElementById('latitude').value = lat;
-    document.getElementById('longitude').value = lon;
+      // Fill form fields
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lon;
 
-    // Optional: center the map there
-    map.setView([lat, lon]);
+      // Optional: center map and place marker
+      map.setView([lat, lon]);
 
-    // If you want to place a marker on the tapped location:
-    if (typeof selectedLocationMarker !== 'undefined' && selectedLocationMarker) {
-      selectedLocationMarker.setLatLng([lat, lon]);
-    } else {
-      selectedLocationMarker = L.marker([lat, lon]).addTo(map);
-    }
+      if (typeof selectedLocationMarker !== 'undefined' && selectedLocationMarker) {
+        selectedLocationMarker.setLatLng([lat, lon]);
+      } else {
+        selectedLocationMarker = L.marker([lat, lon]).addTo(map);
+      }
 
-    // Turn off selection mode after a tap (optional)
-    map.off('click', mapClickListener);
-    mapClickListener = null;
-    isSelectingLocation = false;
-  };
+      // Cleanup
+      map.off('click', mapClickListener);
+      mapClickListener = null;
+      isSelectingLocation = false;
 
-  // Attach the listener
-  map.on('click', mapClickListener);
+      // ✅ Return coordinates by resolving the promise
+      resolve({ lat, lon });
+    };
+
+    map.on('click', mapClickListener);
+  });
 }
+
+
 
 
 function toggleMenu(menuId) {
@@ -464,7 +470,15 @@ function createTour() {
   toggleMenu("generate-loop");
 }
 
+
+
+var stopadding = false
+
 async function generateTour(timeMinutes) {
+
+  if (stopadding == false) {
+    addedStops = []; 
+  }
   showLoader();
   try {
     const userCoords = await new Promise((resolve, reject) => {
@@ -489,28 +503,14 @@ async function generateTour(timeMinutes) {
       return;
     }
 
-    // Map marker coordinates for the route
-    const routeCoords = nearbyLocations.map(loc => [loc.latitude, loc.longitude]);
+    // Map marker coordinates for the route 
+    const routeCoords = [
+      ...nearbyLocations.map(loc => [loc.latitude, loc.longitude]),
+      ...addedStops  // Include user stops in the tour
+    ];
 
-    // Include user position at the start
-    const fullRoute = [[userLat, userLng], ...routeCoords];
-
-    // TRIAL FOR MODIFYING THE TOUR BASED OF THE TIME SELECTION OF THE USER.
- /*   console.log(`Total route distance: ${totalDistance.toFixed(2)} km`);
-    console.log(`Time allows: ${walkingDistanceLimit.toFixed(2)} km`);
-
-    // Check if distance exceeds limit
-    if (totalDistance <= walkingDistanceLimit) {
-      drawRouteOnMap(userLat, userLng, routeCoords, map); // draw tour
-    } else {
-      console.warn("Selected time is too short for this tour.");
-      // Time not enough for full route
-      if (currentRouteLayer) {
-        map.removeLayer(currentRouteLayer);
-        currentRouteLayer = null;
-      }
-    }*/
-   drawRouteOnMap(userLat, userLng, routeCoords, map); // draw tour
+    // Draw line of the tour
+    drawRouteOnMap(userLat, userLng, routeCoords, map); 
 
   } catch (error) {
     console.error("Error generating tour:", error);
@@ -520,13 +520,108 @@ async function generateTour(timeMinutes) {
 }
 
 
+async function chooseStartingPoint(timeMinutes) {
+  addedStops = []; 
+  try {
+    // Getting the starting coordinates from the user's tap
+    const { lat: starting_lat, lon: starting_lon } = await tapLocation();
+    console.log("User selected:", starting_lat, starting_lon);
+
+    const walkingDistanceLimit = (timeMinutes / 60) * 5; // e.g. 5 km/h pace
+
+    // Filter markers within radius (10 km for example)
+    const nearbyLocations = Alllocations.filter(loc => {
+      const dist = getDistanceFromLatLonInKm(starting_lat, starting_lon, loc.latitude, loc.longitude);
+      return dist <= 10;  // or walkingDistanceLimit if you want dynamic radius
+    });
+
+    if (nearbyLocations.length === 0) {
+      console.warn("No nearby markers.");
+      return;
+    }
+
+    // Map marker coordinates for the route
+    const routeCoords = nearbyLocations.map(loc => [loc.latitude, loc.longitude]);
+
+    showLoader();
+    drawRouteOnMap(starting_lat, starting_lon, routeCoords, map);
+
+  } catch (error) {
+    console.error("Error generating tour:", error);
+  } finally {
+    hideLoader();
+  }
+}
+
+
+function addStop() {
+  stopadding = true
+
+  if (mapClickListener) {
+    map.off('click', mapClickListener);
+    mapClickListener = null;
+  }
+
+  isSelectingLocation = true;
+
+  // At the same time gets and return the coords - you can't return it later cause 
+  // the func stops running but the user might still have to tap
+  return new Promise((resolve) => {
+    mapClickListener = function (e) {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
+
+      // Store in a array the coords - used pnly when modifying the tour
+      addedStops.push([lat, lon]);
+
+      // Fill form fields
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lon;
+
+      // Optional: center map and place marker
+      map.setView([lat, lon]);
+
+      if (typeof selectedLocationMarker !== 'undefined' && selectedLocationMarker) {
+        selectedLocationMarker.setLatLng([lat, lon]);
+      } else {
+        selectedLocationMarker = L.marker([lat, lon]).addTo(map);
+      }
+
+      // Cleanup
+      map.off('click', mapClickListener);
+      mapClickListener = null;
+      isSelectingLocation = false;
+
+      // ✅ Return coordinates by resolving the promise
+      resolve({ lat, lon });
+    };
+
+    map.on('click', mapClickListener);
+    generateTour();
+  });
+}
+
+function deleteStops() {
+  addedStops = []; 
+  generateTour();
+}
+
 var currentRouteLayer = null;
+var currentArrowMarkers = []
 
 function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
   // Remove previous route if it exists
   if (currentRouteLayer) {
     map.removeLayer(currentRouteLayer);
   }
+
+  // Remove waypoints as well
+  if (currentArrowMarkers.length > 0) {
+    currentArrowMarkers.forEach(marker => map.removeLayer(marker));
+    currentArrowMarkers = [];
+  }
+
+
   // Step 1: Compute distance from user to each marker
   const toRad = deg => deg * Math.PI / 180;
   const haversine = (lat1, lng1, lat2, lng2) => {
@@ -573,48 +668,63 @@ function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
   // Step 4: Request the route
   const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=full&geometries=geojson`;
 
+  
 fetch(osrmUrl)
-  .then(response => response.json())
-  .then(routeGeoJSON => {
-    if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
-      const route = routeGeoJSON.routes[0].geometry;
+    .then(response => response.json())
+    .then(routeGeoJSON => {
+      if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
+        const route = routeGeoJSON.routes[0].geometry;
 
-      // 1. Draw the main route line
-      const latlngs = route.coordinates.map(coord => [coord[1], coord[0]]);
-      currentRouteLayer = L.geoJSON(route, {
-        style: {
-          color: '#ff5733',
-          weight: 4,
-          opacity: 0.8
+        // Remove previous route line if any
+        if (currentRouteLayer) {
+          map.removeLayer(currentRouteLayer);
+          currentRouteLayer = null;
         }
-      }).addTo(map);
 
-      // 2. Add directional arrows along the line (every N points)
-      for (var i = 0; i < latlngs.length - 1; i += 25) {
-        const from = latlngs[i];
-        const to = latlngs[i + 1];
+        // Remove previous arrows
+        currentArrowMarkers.forEach(marker => map.removeLayer(marker));
+        currentArrowMarkers = [];
 
-        const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
+        // 1. Draw the main route line
+        currentRouteLayer = L.geoJSON(route, {
+          style: {
+            color: '#ff5733',
+            weight: 4,
+            opacity: 0.8
+          }
+        }).addTo(map);
 
-        // Create arrow icon rotated toward next point
-        const arrowIcon = L.divIcon({
-          className: 'arrow-icon',
-          html: `<div style="transform: rotate(${angle}deg);">➤</div>`,
-          iconSize: [16, 16],
-          iconAnchor: [8, 8]
-        });
+        const latlngs = route.coordinates.map(coord => [coord[1], coord[0]]);
 
-        // Place the arrow marker
-        L.marker(from, { icon: arrowIcon }).addTo(map);
+        // 2. Add directional arrows along the line (every N points)
+        for (let i = 0; i < latlngs.length - 1; i += 25) {
+          const from = latlngs[i];
+          const to = latlngs[i + 1];
+
+          const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
+
+          // Create arrow icon rotated toward next point
+          const arrowIcon = L.divIcon({
+            className: 'arrow-icon',
+            html: `<div style="transform: rotate(${angle}deg);">➤</div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          });
+
+          // Place the arrow marker and store it
+          const arrowMarker = L.marker(from, { icon: arrowIcon }).addTo(map);
+          currentArrowMarkers.push(arrowMarker);
+        }
+      } else {
+        console.error("No route found");
       }
-    } else {
-      console.error("No route found");
-    }
-  })
-  .catch(err => {
-    console.error("Error fetching route:", err);
-  });
+    })
+    .catch(err => {
+      console.error("Error fetching route:", err);
+    });
 }
+
+
 var userMarker = null;
 var userLocationWatchId = null;
 
