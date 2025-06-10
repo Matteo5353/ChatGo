@@ -2,7 +2,7 @@ var map = null;
 var markers = [];
 var DEFAULT_ZOOM = 14;
 var MARKER_SIZE = 40;
-//const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
+const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
 
 
 // const API_URL = "http://localhost:3000/places";
@@ -145,7 +145,7 @@ async function showPlaces() {
 }
 
 function idealForFilter() {
-  const selectedValue = document.getElementById("ideal").value;
+  const selectedValue = document.getElementById("idealFilter").value;
 
   // If default is selected, show all markers (not straight return cause otherwise can't show back again)
   if (selectedValue === "None") {
@@ -327,8 +327,8 @@ async function addPlace() {
       latitude: parseFloat(document.getElementById("latitude").value),
       longitude: parseFloat(document.getElementById("longitude").value),
       description: document.getElementById("description").value,
-      mapLink: document.getElementById("mapLink").value,
-      ideal: document.getElementById("ideal").value,
+      //mapLink: document.getElementById("mapLink").value,
+      ideal: document.getElementById("idealSelect").value,  
       photo: await readFile(document.getElementById("placePhoto").files[0]),
     };
     if (!placeData.title || !placeData.latitude || !placeData.longitude)
@@ -346,7 +346,6 @@ async function addPlace() {
     clearForm();
   } catch (error) {
     console.error("Error saving location:", error);
-    alert("Failed to save location. Please check your input.");
   } finally {
     hideLoader();
   }

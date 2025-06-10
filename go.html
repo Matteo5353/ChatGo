@@ -39,7 +39,7 @@
             View Places
         </button>
         <button class="secondary-btn">
-            <select name="ideal" id="ideal" class="ideal-for" onchange="idealForFilter()">
+            <select name="ideal" id="idealFilter" class="ideal-for" onchange="idealForFilter()">
             <option value="None">Ideal For</option>
             <option value="Day">Day</option>
             <option value="Night Life">Night Life</option>
@@ -103,12 +103,12 @@
         placeholder="Longitude"
         required
         />
-        <input
+        <!--<input
         type="text"
         id="mapLink"
         placeholder="Google Maps Link"
-        />
-        <select name="ideal" id="ideal">
+        />-->
+        <select name="ideal" id="idealSelect">
         <option value="None" selected disabled>Ideal For</option>
         <option value="Day">Day</option>
         <option value="Night Life">Night Life</option>
