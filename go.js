@@ -2,7 +2,7 @@ var map = null;
 var markers = [];
 var DEFAULT_ZOOM = 16;
 var MARKER_SIZE = 40;
-const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
+//const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
 
 
 // const API_URL = "http://localhost:3000/places";
@@ -471,56 +471,7 @@ function createTour() {
 
 
 
-var stopadding = false
-
-async function generateTour(timeMinutes) {
-
-  if (stopadding == false) {
-    addedStops = []; 
-  }
-  showLoader();
-  try {
-    const userCoords = await new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => resolve([position.coords.latitude, position.coords.longitude]),
-        (error) => reject(error),
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
-      );
-    });
-
-    const [userLat, userLng] = userCoords;
-    const walkingDistanceLimit = (timeMinutes / 60) * 5; // e.g. 5 km/h pace
-
-    // Filter markers within radius (3 km for example)
-    const nearbyLocations = Alllocations.filter(loc => {
-      const dist = getDistanceFromLatLonInKm(userLat, userLng, loc.latitude, loc.longitude);
-      return dist <= 2;
-    });
-
-    if (nearbyLocations.length === 0) {
-      console.warn("No nearby markers.");
-      return;
-    }
-
-    // Map marker coordinates for the route 
-    const routeCoords = [
-      ...nearbyLocations.map(loc => [loc.latitude, loc.longitude]),
-      ...addedStops  // Include user stops in the tour
-    ];
-
-    // Draw line of the tour
-    drawRoute(userLat, userLng, routeCoords, map); 
-
-  } catch (error) {
-    console.error("Error generating tour:", error);
-  } finally {
-    hideLoader();
-  }
-}
-
-
-
-var startingPoint = null
+let startingPoint = null; // Global variable to store tapped location
 
 async function selectStartingPoint() {
   const { lat, lon } = await tapLocation();
@@ -528,16 +479,35 @@ async function selectStartingPoint() {
   console.log("User selected starting point:", lat, lon);
 }
 
-
-
 async function chooseStartingPoint() {
-  try {
-    if (!startingPoint) {
-      alert("Please select a starting point first.");
+  let startLat, startLng;
+
+  if (startingPoint) {
+    // User has manually tapped
+    startLat = startingPoint.lat;
+    startLng = startingPoint.lon;
+    console.log("Using user-tapped starting point:", startLat, startLng);
+  } else {
+    try {
+      // No manual tap, try geolocation
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+        );
+      });
+
+      startLat = position.coords.latitude;
+      startLng = position.coords.longitude;
+      console.log("Using user's current location:", startLat, startLng);
+
+    } catch (geoError) {
+      alert("Please allow location access or tap to select a starting point.");
+      console.warn("Geolocation failed:", geoError.message);
       return;
     }
-
-    const { lat: startLat, lon: startLng } = startingPoint;
+  }
 
     const selectedValue = document.getElementById("idealPreference").value;
     const durationMin = parseFloat(document.getElementById('idealDuration').value);
@@ -558,9 +528,14 @@ async function chooseStartingPoint() {
     });
 
     const growingRoute = [];
-    let lastValidRoute = [];
+    var lastValidRoute = [];
+    let counter = 0;
 
     for (const loc of filtered) {
+      // Maximum number of stops included for GraphHopper free version. I'm poor :/
+      if (counter >= 3) break;
+      counter++;
+
       growingRoute.push([loc.latitude, loc.longitude]);
       console.log(`Points: ${growingRoute.length}, Duration: ${durationMin.toFixed(2)}min`);
 
@@ -580,15 +555,27 @@ async function chooseStartingPoint() {
         const res = await fetch(osrmUrl);
         const data = await res.json();
         if (data.routes && data.routes.length > 0) {
+          const avgWalkingSpeedKmPerH = 4.5; 
+          const maxDistanceKm = (durationMin / 60) * avgWalkingSpeedKmPerH;
           const routeDurationMin = data.routes[0].duration / 60;
+          const distanceKm = data.routes[0].distance / 1000;
+          console.log('Distance:', distanceKm.toFixed(2), 'km');
+
           console.log('Route duration:', routeDurationMin, 'min');
 
 
-          if (routeDurationMin <= durationMin * (1 + tolerance)) {
-            lastValidRoute = [...growingRoute]; // Save it
+          const routeDistanceKm = data.routes[0].distance / 1000;
+
+          // Checking double
+          if (
+            routeDurationMin <= durationMin * (1 + tolerance) &&
+            routeDistanceKm <= maxDistanceKm * 1.1 // small leeway
+          ) {
+            lastValidRoute = [...growingRoute];
           } else {
-            break; // stop adding more, last one was too much
+            break;
           }
+
         }
       } catch (e) {
         console.warn("Route check failed:", e);
@@ -600,15 +587,10 @@ async function chooseStartingPoint() {
       alert("Could not generate a valid tour within your time range.");
       return;
     }
+    
 
-    showLoader();
     drawRoute(startLat, startLng, lastValidRoute, map);
 
-   } catch (err) {
-    console.error("Error in chooseStartingPoint:", err);
-  } finally {
-    hideLoader();
-  }
 }
 
 
