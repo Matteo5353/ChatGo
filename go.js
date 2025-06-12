@@ -1,6 +1,6 @@
 var map = null;
 var markers = [];
-var DEFAULT_ZOOM = 14;
+var DEFAULT_ZOOM = 16;
 var MARKER_SIZE = 40;
 const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
 
@@ -96,7 +96,7 @@ function showInfoWindow(e, place) {
     place.longitude.toFixed(4);
   infoWindow.querySelector(".info-ideal").textContent = place.ideal;
   infoWindow.querySelector(".info-description").textContent = place.description;
-  const mapLink = infoWindow.querySelector(".info-map-link");
+  /*const mapLink = infoWindow.querySelector(".info-map-link");
   if (place.mapLink === "") {
     mapLink.style.display = "none";
   } else {
@@ -104,7 +104,7 @@ function showInfoWindow(e, place) {
     mapLink.href = place.mapLink.startsWith("http")
       ? place.mapLink
       : `https://${place.mapLink}`;
-  }
+  }*/
 
   // Position
   const point = map.latLngToContainerPoint(e.latlng);
@@ -494,7 +494,7 @@ async function generateTour(timeMinutes) {
     // Filter markers within radius (3 km for example)
     const nearbyLocations = Alllocations.filter(loc => {
       const dist = getDistanceFromLatLonInKm(userLat, userLng, loc.latitude, loc.longitude);
-      return dist <= 10;
+      return dist <= 2;
     });
 
     if (nearbyLocations.length === 0) {
@@ -509,7 +509,7 @@ async function generateTour(timeMinutes) {
     ];
 
     // Draw line of the tour
-    drawRouteOnMap(userLat, userLng, routeCoords, map); 
+    drawRoute(userLat, userLng, routeCoords, map); 
 
   } catch (error) {
     console.error("Error generating tour:", error);
@@ -519,38 +519,99 @@ async function generateTour(timeMinutes) {
 }
 
 
-async function chooseStartingPoint(timeMinutes) {
-  addedStops = []; 
+
+var startingPoint = null
+
+async function selectStartingPoint() {
+  const { lat, lon } = await tapLocation();
+  startingPoint = { lat, lon };
+  console.log("User selected starting point:", lat, lon);
+}
+
+
+
+async function chooseStartingPoint() {
   try {
-    // Getting the starting coordinates from the user's tap
-    const { lat: starting_lat, lon: starting_lon } = await tapLocation();
-    console.log("User selected:", starting_lat, starting_lon);
-
-    const walkingDistanceLimit = (timeMinutes / 60) * 5; // e.g. 5 km/h pace
-
-    // Filter markers within radius (10 km for example)
-    const nearbyLocations = Alllocations.filter(loc => {
-      const dist = getDistanceFromLatLonInKm(starting_lat, starting_lon, loc.latitude, loc.longitude);
-      return dist <= 10;  // or walkingDistanceLimit if you want dynamic radius
-    });
-
-    if (nearbyLocations.length === 0) {
-      console.warn("No nearby markers.");
+    if (!startingPoint) {
+      alert("Please select a starting point first.");
       return;
     }
 
-    // Map marker coordinates for the route
-    const routeCoords = nearbyLocations.map(loc => [loc.latitude, loc.longitude]);
+    const { lat: startLat, lon: startLng } = startingPoint;
+
+    const selectedValue = document.getElementById("idealPreference").value;
+    const durationMin = parseFloat(document.getElementById('idealDuration').value);
+    const tolerance = 0.05;
+
+    console.log("Using stored starting point:", startLat, startLng);
+    console.log("User preferences:", selectedValue, durationMin);
+    
+
+    // 1. Filter markers by ideal tag
+    const filtered = Alllocations.filter(loc => loc.ideal === selectedValue);
+
+    // 2. Sort by distance to starting point
+    filtered.sort((a, b) => {
+      const distA = getDistanceFromLatLonInKm(startLat, startLng, a.latitude, a.longitude);
+      const distB = getDistanceFromLatLonInKm(startLat, startLng, b.latitude, b.longitude);
+      return distA - distB;
+    });
+
+    const growingRoute = [];
+    let lastValidRoute = [];
+
+    for (const loc of filtered) {
+      growingRoute.push([loc.latitude, loc.longitude]);
+      console.log(`Points: ${growingRoute.length}, Duration: ${durationMin.toFixed(2)}min`);
+
+      const snapped = growingRoute; // No snapping
+
+      // Build waypoints including start and return
+      const routeCoords = [
+        [startLat, startLng],
+        ...snapped,
+        [startLat, startLng]
+      ];
+
+      const waypointsStr = routeCoords.map(([lat, lng]) => `${lng},${lat}`).join(';');
+      const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=false`;
+
+      try {
+        const res = await fetch(osrmUrl);
+        const data = await res.json();
+        if (data.routes && data.routes.length > 0) {
+          const routeDurationMin = data.routes[0].duration / 60;
+          console.log('Route duration:', routeDurationMin, 'min');
+
+
+          if (routeDurationMin <= durationMin * (1 + tolerance)) {
+            lastValidRoute = [...growingRoute]; // Save it
+          } else {
+            break; // stop adding more, last one was too much
+          }
+        }
+      } catch (e) {
+        console.warn("Route check failed:", e);
+        break;
+      }
+    }
+
+    if (lastValidRoute.length === 0) {
+      alert("Could not generate a valid tour within your time range.");
+      return;
+    }
 
     showLoader();
-    drawRouteOnMap(starting_lat, starting_lon, routeCoords, map);
+    drawRoute(startLat, startLng, lastValidRoute, map);
 
-  } catch (error) {
-    console.error("Error generating tour:", error);
+   } catch (err) {
+    console.error("Error in chooseStartingPoint:", err);
   } finally {
     hideLoader();
   }
 }
+
+
 
 
 function addStop() {
@@ -608,120 +669,82 @@ function deleteStops() {
 var currentRouteLayer = null;
 var currentArrowMarkers = []
 
-function drawRouteOnMap(userLat, userLng, nearbyCoordinates, map) {
+
+async function drawRoute(startLat, startLng, nearbyCoordinates, map) {
+  const key = "33946d0d-7d50-47f7-a19f-39fcf2a42306";
   // Remove previous route if it exists
   if (currentRouteLayer) {
     map.removeLayer(currentRouteLayer);
   }
 
-  // Remove waypoints as well
+  // Remove previous arrows
   if (currentArrowMarkers.length > 0) {
     currentArrowMarkers.forEach(marker => map.removeLayer(marker));
     currentArrowMarkers = [];
   }
 
-
-  // Step 1: Compute distance from user to each marker
-  const toRad = deg => deg * Math.PI / 180;
-  const haversine = (lat1, lng1, lat2, lng2) => {
-    const R = 6371e3; // meters
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
-  // Step 2: Sort markers using a greedy "nearest neighbor" approach
-  const sortedMarkers = [];
-  var current = { lat: userLat, lng: userLng };
-  var remaining = [...nearbyCoordinates]; // shallow copy
-
-  while (remaining.length > 0) {
-    var nearestIndex = 0;
-    var minDist = Infinity;
-
-    for (var i = 0; i < remaining.length; i++) {
-      const dist = haversine(current.lat, current.lng, remaining[i][0], remaining[i][1]);
-      if (dist < minDist) {
-        minDist = dist;
-        nearestIndex = i;
-      }
-    }
-
-    const next = remaining.splice(nearestIndex, 1)[0];
-    sortedMarkers.push(next);
-    current = { lat: next[0], lng: next[1] };
-  }
-
-  // Step 3: Build waypoints [user, sortedMarkers..., user]
-  const waypoints = [
-    [userLng, userLat], // start
-    ...sortedMarkers.map(coord => [coord[1], coord[0]]),
-    [userLng, userLat]  // return to start
+  // Build the route points: start + all nearby + return to start
+  const routePoints = [
+    [startLat, startLng],
+    ...nearbyCoordinates,
+    [startLat, startLng]
   ];
 
-  const waypointsStr = waypoints.map(point => point.join(',')).join(';');
+  // Helper function to build URL for GraphHopper with multiple points
+  function buildGraphHopperUrl(points, apiKey) {
+    const pointParams = points.map(([lat, lng]) => `point=${lat},${lng}`).join('&');
+    return `https://graphhopper.com/api/1/route?${pointParams}&vehicle=foot&points_encoded=false&key=${key}`;
+  }
 
+  const url = buildGraphHopperUrl(routePoints, key);
 
-  // Step 4: Request the route
-  const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=full&geometries=geojson`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-  
-fetch(osrmUrl)
-    .then(response => response.json())
-    .then(routeGeoJSON => {
-      if (routeGeoJSON.routes && routeGeoJSON.routes.length > 0) {
-        const route = routeGeoJSON.routes[0].geometry;
+    if (!data.paths || data.paths.length === 0) {
+      console.error('No route found from GraphHopper');
+      return;
+    }
 
-        // Remove previous route line if any
-        if (currentRouteLayer) {
-          map.removeLayer(currentRouteLayer);
-          currentRouteLayer = null;
-        }
-
-        // Remove previous arrows
-        currentArrowMarkers.forEach(marker => map.removeLayer(marker));
-        currentArrowMarkers = [];
-
-        // 1. Draw the main route line
-        currentRouteLayer = L.geoJSON(route, {
-          style: {
-            color: '#ff5733',
-            weight: 4,
-            opacity: 0.8
-          }
-        }).addTo(map);
-
-        const latlngs = route.coordinates.map(coord => [coord[1], coord[0]]);
-
-        // 2. Add directional arrows along the line (every N points)
-        for (let i = 0; i < latlngs.length - 1; i += 25) {
-          const from = latlngs[i];
-          const to = latlngs[i + 1];
-
-          const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
-
-          // Create arrow icon rotated toward next point
-          const arrowIcon = L.divIcon({
-            className: 'arrow-icon',
-            html: `<div style="transform: rotate(${angle}deg);">➤</div>`,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
-          });
-
-          // Place the arrow marker and store it
-          const arrowMarker = L.marker(from, { icon: arrowIcon }).addTo(map);
-          currentArrowMarkers.push(arrowMarker);
-        }
-      } else {
-        console.error("No route found");
+    // Construct valid GeoJSON from GraphHopper response
+    const geojsonRoute = {
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: data.paths[0].points.coordinates // [lng, lat] pairs
       }
-    })
-    .catch(err => {
-      console.error("Error fetching route:", err);
-    });
+    };
+
+    // Draw route on the map
+    currentRouteLayer = L.geoJSON(geojsonRoute, {
+      style: { color: '#ff5733', weight: 4, opacity: 0.8 }
+    }).addTo(map);
+
+    // Draw directional arrows every ~25 points
+    const latlngs = geojsonRoute.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+    for (let i = 0; i < latlngs.length - 1; i += 25) {
+      const from = latlngs[i];
+      const to = latlngs[i + 1];
+      const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
+
+      const arrowIcon = L.divIcon({
+        className: 'arrow-icon',
+        html: `<div style="transform: rotate(${angle}deg);">➤</div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const arrowMarker = L.marker(from, { icon: arrowIcon }).addTo(map);
+      currentArrowMarkers.push(arrowMarker);
+    }
+
+  } catch (err) {
+    console.error('GraphHopper error:', err);
+  }
 }
+
+
 
 
 var userMarker = null;

@@ -27,6 +27,9 @@
         <button class="primary-btn" onclick="createTour()">
             Create a Tour
         </button>
+        <button class="primary-btn" onclick="generateTour()"> 
+            Generate the Tour
+        </button>
         <button class="primary-btn" onclick="deleteValue()">
             ❌ Delete Place
         </button>
@@ -124,9 +127,45 @@
     </div>
 
     <div id="generate-loop" class="hidden">
-        <button class="back-btn" onclick="backToMenu()">⬅ Back to Main</button>
-        <button class="secondary-btn" onclick="generateTour()"> Generate the Tour</button>
-        <button class="secondary-btn" onclick="chooseStartingPoint()"> Select the starting point</button>
+        <div class="row">
+            <button class="back-btn" onclick="backToMenu()">⬅ Back to Main</button>
+        </div>
+        <div class="row">
+            <button class="secondary-btn">
+            <select name="ideal" id="idealPreference" class="ideal-for">
+            <option value="None">Ideal For</option>
+            <option value="Day">Day</option>
+            <option value="Night Life">Night Life</option>
+            <option value="Tourism">Tourism</option>
+            </select>
+            </button>
+        </div>
+        <div class="row">
+            <button class="secondary-btn" onclick="selectStartingPoint()">Select the starting point</button>
+        </div>
+        <div class="input-group">
+            <label for="maxPrice">Max Price</label>
+            <input
+            type="number"
+            step="any"
+            id="maxPrice"
+            name="maxPrice"
+            placeholder="e.g. 50.00"
+            required
+            />
+        </div>
+        <div class="input-group">
+            <label for="idealDuration">Ideal Duration (min)</label>
+            <input
+            type="number"
+            step="any"
+            id="idealDuration"
+            name="idealDuration"
+            placeholder="e.g. 90"
+            required
+            />
+        </div>
+        <button type="button" style="background-color: rgb(2, 149, 198);" onclick="chooseStartingPoint()">Go!</button>
         <button type="button" onclick="addStop()">🔻 Add Stop</button>
         <button type="button" onclick="deleteStops()">Delete Stops</button>
     </div>

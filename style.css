@@ -251,12 +251,44 @@ button:hover {
 
 #generate-loop {
   display: flex;
-  gap: 10px; /* space between buttons */
-  flex-wrap: wrap; /* allows wrapping on smaller screens */
+  flex-direction: column;
+  gap: 16px; /* more vertical breathing room */
+}
+
+#generate-loop .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#generate-loop .input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+#generate-loop .input-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 4px;
+}
+
+#generate-loop .input-group input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#generate-loop .input-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  outline: none;
 }
 
 #addPlaceMenu {
-  scroll-behavior: smooth; /* 👈 Add this */
+  scroll-behavior: smooth; 
 }
 
 #addPlaceMenu input,
