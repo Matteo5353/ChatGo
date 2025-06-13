@@ -142,6 +142,12 @@ button {
   background-color: rgb(89, 89, 89);
 }
 
+#placesList {
+  max-height: 90vh; /* or any suitable value */
+  overflow-y: auto;
+  padding: 10px;
+}
+
 
 .ideal-for {
   appearance: none;

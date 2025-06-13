@@ -333,7 +333,7 @@ async function addPlace() {
     };
     if (!placeData.title || !placeData.latitude || !placeData.longitude)
       throw new Error("Please fill in all fields");
-    const response = await fetch(API_URL, {
+      const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(placeData),
@@ -658,7 +658,7 @@ function addStop() {
 function deleteStops() {
   // Reset the counter of the added points
   stopCounter = 0; 
-   // Deep clone the original route (assuming it's an array of arrays or simple objects)
+  // Deep clone the original route (assuming it's an array of arrays or simple objects) - can't simply copy
   tourLocations = lastValidRoute.map(point => [...point]);
   drawRoute(startLat, startLng, lastValidRoute, map);
 }
@@ -741,8 +741,74 @@ async function drawRoute(startLat, startLng, nearbyCoordinates, map) {
   }
 }
 
+document.getElementById('deletePlaceBtn').addEventListener('click', deletePlace);
+
+async function deletePlace() {
+  showLoader();
+  try {
+    const locations = [...Alllocations];
+    const placesList = document.getElementById("placesList");
+
+    placesList.innerHTML = `
+      <div class="places-container">
+        ${locations
+          .map(
+            (place) => `
+              <div class="place-item" id="place-${place._id}">
+                <span class="place-title delete-btn" data-id="${place._id}">
+                  ${place.title}
+                </span>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+
+    // Add event listeners to newly added elements
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        confirmDeletePlace(id);
+      });
+    });
+
+    toggleMenu("placesMenu");
+  } finally {
+    hideLoader();
+  }
+}
 
 
+async function confirmDeletePlace(id) {
+  if (!confirm("Are you sure you want to delete this place?")) return;
+
+  showLoader();
+  try {
+    const response = await fetch(`https://openstreetmap-v0jt.onrender.com/places/${id}`, {
+      method: "delete",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ data: id }),
+    });
+
+  
+    if (!response.ok) throw new Error("Failed to delete place");
+
+    alert("Place deleted successfully");
+    // Refresh the delete list so the deleted place disappears
+    await deletePlace();  // call your deletePlace() to reload the list
+
+  } catch (error) {
+    console.error("Delete failed:", error);
+    alert("Error deleting place");
+  } finally {
+    hideLoader();
+  }
+}
+
+
+
+  
 
 var userMarker = null;
 var userLocationWatchId = null;

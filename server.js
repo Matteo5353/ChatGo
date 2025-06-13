@@ -19,7 +19,11 @@ cloudinary.config({
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // exit if DB connection fails
+  });
+
 
 // Schema
 const placeSchema = new mongoose.Schema({
@@ -73,24 +77,26 @@ app.get('/places/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const place = await Place.findById(id);
-    if (!place) return res.status(404).json({ error: "Place not found" });
+    if (!place) {
+      return res.status(404).json({ error: 'Place not found' });
+    }
     res.json(place);
-  } catch (err) {
-    res.status(500).json({ error: "Error fetching place by ID" });
+  } catch (error) {
+    console.error('Error fetching place:', error);
+    res.status(500).json({ error: 'Failed to fetch place' });
   }
 });
 
 
-// 2. DELETE a specific place by ID
 app.delete('/places/:id', async (req, res) => {
-  const { id } = req.params;
-
   try {
-    await Place.delete(id); // Find and delete the place by ID
-    if (!id) {
+    const { id } = req.params;
+    const deletedPlace = db.posts.deleteOne({ _id: id })
+    //const deletedPlace = await Place.findByIdAndDelete(id);
+    if (!deletedPlace) {
       return res.status(404).json({ error: 'Place not found' });
     }
-    res.json({ message: 'Place deleted successfully' });
+    res.json({ message: 'Place deleted successfully!' });
   } catch (error) {
     console.error('Error deleting place:', error);
     res.status(500).json({ error: 'Failed to delete place' });
