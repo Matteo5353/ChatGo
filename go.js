@@ -479,8 +479,14 @@ async function selectStartingPoint() {
   console.log("User selected starting point:", lat, lon);
 }
 
+var tourLocations = [];
+var lastValidRoute = [];  
+let lastCounter = 0;
+let startLat, startLng;
+
 async function chooseStartingPoint() {
-  let startLat, startLng;
+  
+  tourLocations = [];
 
   if (startingPoint) {
     // User has manually tapped
@@ -528,15 +534,19 @@ async function chooseStartingPoint() {
     });
 
     const growingRoute = [];
-    var lastValidRoute = [];
+    lastValidRoute = [];
     let counter = 0;
 
     for (const loc of filtered) {
       // Maximum number of stops included for GraphHopper free version. I'm poor :/
-      if (counter >= 3) break;
-      counter++;
+      if (counter >= 3) {
+        console.log("Max stops reached:", counter);
+        lastCounter = counter; // save before exiting
+      }
 
       growingRoute.push([loc.latitude, loc.longitude]);
+      tourLocations.push([loc.latitude, loc.longitude]); // Saving for AddStop 
+      counter++;
       console.log(`Points: ${growingRoute.length}, Duration: ${durationMin.toFixed(2)}min`);
 
       const snapped = growingRoute; // No snapping
@@ -573,6 +583,7 @@ async function chooseStartingPoint() {
           ) {
             lastValidRoute = [...growingRoute];
           } else {
+            tourLocations.pop(); // Remove last one instead of taking last tour...
             break;
           }
 
@@ -587,24 +598,29 @@ async function chooseStartingPoint() {
       alert("Could not generate a valid tour within your time range.");
       return;
     }
-    
 
     drawRoute(startLat, startLng, lastValidRoute, map);
-
+    lastCounter = counter; // store final value
+    return counter, tourLocations, lastValidRoute, startLat, startLng;
 }
 
 
-
+var stopCounter = 0;
 
 function addStop() {
-  stopadding = true
+  stopCounter = lastCounter
+
+  // Still, GraphHopper max number of locations - if too many I won't allow you to add
+  console.log("counter", stopCounter);
+  if (stopCounter > 3) {
+    alert("Please shorten the tour, there are too many locations selected :/");
+    return;
+  }
 
   if (mapClickListener) {
     map.off('click', mapClickListener);
     mapClickListener = null;
   }
-
-  isSelectingLocation = true;
 
   // At the same time gets and return the coords - you can't return it later cause 
   // the func stops running but the user might still have to tap
@@ -613,12 +629,9 @@ function addStop() {
       const lat = e.latlng.lat;
       const lon = e.latlng.lng;
 
-      // Store in a array the coords - used pnly when modifying the tour
-      addedStops.push([lat, lon]);
-
-      // Fill form fields
-      document.getElementById('latitude').value = lat;
-      document.getElementById('longitude').value = lon;
+      // Pushes the coords to the tour already existing
+      tourLocations.push([lat, lon]);
+      stopCounter++;
 
       // Optional: center map and place marker
       map.setView([lat, lon]);
@@ -632,20 +645,22 @@ function addStop() {
       // Cleanup
       map.off('click', mapClickListener);
       mapClickListener = null;
-      isSelectingLocation = false;
-
+      drawRoute(startLat, startLng, tourLocations, map);
       // ✅ Return coordinates by resolving the promise
       resolve({ lat, lon });
     };
 
     map.on('click', mapClickListener);
-    generateTour();
+    
   });
 }
 
 function deleteStops() {
-  addedStops = []; 
-  generateTour();
+  // Reset the counter of the added points
+  stopCounter = 0; 
+   // Deep clone the original route (assuming it's an array of arrays or simple objects)
+  tourLocations = lastValidRoute.map(point => [...point]);
+  drawRoute(startLat, startLng, lastValidRoute, map);
 }
 
 var currentRouteLayer = null;
