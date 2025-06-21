@@ -471,7 +471,7 @@ function createTour() {
 
 
 
-let startingPoint = null; // Global variable to store tapped location
+var startingPoint = null; // Global variable to store tapped location
 
 async function selectStartingPoint() {
   const { lat, lon } = await tapLocation();
@@ -481,12 +481,15 @@ async function selectStartingPoint() {
 
 var tourLocations = [];
 var lastValidRoute = [];  
-let lastCounter = 0;
-let startLat, startLng;
+var lastCounter = 0;
+var startLat, startLng;
 
 async function chooseStartingPoint() {
   
   tourLocations = [];
+  lastValidRoute = [];
+  const growingRoute = [];
+  var counter = 0;
 
   if (startingPoint) {
     // User has manually tapped
@@ -533,11 +536,7 @@ async function chooseStartingPoint() {
       return distA - distB;
     });
 
-    const growingRoute = [];
-    lastValidRoute = [];
-    let counter = 0;
-
-    for (const loc of filtered) {
+      for (const loc of filtered) {
       // Maximum number of stops included for GraphHopper free version. I'm poor :/
       if (counter >= 3) {
         console.log("Max stops reached:", counter);
@@ -554,8 +553,7 @@ async function chooseStartingPoint() {
       // Build waypoints including start and return
       const routeCoords = [
         [startLat, startLng],
-        ...snapped,
-        [startLat, startLng]
+        ...snapped
       ];
 
       const waypointsStr = routeCoords.map(([lat, lng]) => `${lng},${lat}`).join(';');
@@ -567,21 +565,19 @@ async function chooseStartingPoint() {
         if (data.routes && data.routes.length > 0) {
           const avgWalkingSpeedKmPerH = 4.5; 
           const maxDistanceKm = (durationMin / 60) * avgWalkingSpeedKmPerH;
-          const routeDurationMin = data.routes[0].duration / 60;
-          const distanceKm = data.routes[0].distance / 1000;
-          console.log('Distance:', distanceKm.toFixed(2), 'km');
-
-          console.log('Route duration:', routeDurationMin, 'min');
-
-
+          //const routeDurationMin = data.routes[0].duration / 60;
           const routeDistanceKm = data.routes[0].distance / 1000;
+          console.log('Distance:', routeDistanceKm.toFixed(2), 'km');
 
+          //console.log('Route duration:', routeDurationMin.toFixed(2), 'min');
+
+          
           // Checking double
           if (
-            routeDurationMin <= durationMin * (1 + tolerance) &&
             routeDistanceKm <= maxDistanceKm * 1.1 // small leeway
           ) {
             lastValidRoute = [...growingRoute];
+            console.log("last route:", ...growingRoute)
           } else {
             tourLocations.pop(); // Remove last one instead of taking last tour...
             break;
