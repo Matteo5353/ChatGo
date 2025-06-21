@@ -261,6 +261,14 @@ button:hover {
   gap: 16px; /* more vertical breathing room */
 }
 
+@media (max-width: 768px) {
+  #generate-loop {
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 #generate-loop .row {
   display: flex;
   flex-wrap: wrap;
@@ -760,3 +768,40 @@ button:hover {
 .add-button:hover {
   background-color: #0056b3;
 }
+
+.feedback-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  z-index: 1000;
+}
+
+.feedback-hidden {
+  display: none;
+}
+
+.stars {
+  display: flex;
+  flex-direction: row-reverse; /* Important */
+  justify-content: center;
+  cursor: pointer;
+}
+
+.star {
+  font-size: 2rem;
+  color: lightgray;
+  transition: color 0.2s;
+}
+
+/* Highlight hovered star and all following siblings (which are actually previous visually) */
+.star:hover,
+.star:hover ~ .star {
+  color: gold;
+}
+

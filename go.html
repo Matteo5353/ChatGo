@@ -163,9 +163,11 @@
             required
             />
         </div>
-        <button type="button" style="background-color: rgb(2, 149, 198);" onclick="chooseStartingPoint()">Go!</button>
+        <button type="button" style="background-color: rgb(112, 190, 218);" onclick="chooseStartingPoint()">Preview</button>
         <button type="button" onclick="addStop()">🔻 Add Stop</button>
         <button type="button" onclick="deleteStops()">Delete Stops</button>
+        <button type="button" style="background-color: rgb(2, 149, 198);" onclick="">Go!</button>
+        <button type="button" onclick="arrived()">ARRIVED</button>
     </div>
     </div>
 
@@ -201,5 +203,15 @@
         <div class="info-label">Description:</div>
         <div class="info-description"></div>
     </div>
+    </div> 
+    <div id="feedbackPopup" class="feedback-popup feedback-hidden">
+    <p>How was your tour?</p>
+        <div class="stars">
+            <span class="star" data-value="5">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="1">&#9733;</span>
+        </div>
 </div>
 

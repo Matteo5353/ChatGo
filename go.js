@@ -541,6 +541,7 @@ async function chooseStartingPoint() {
       if (counter >= 3) {
         console.log("Max stops reached:", counter);
         lastCounter = counter; // save before exiting
+        break
       }
 
       growingRoute.push([loc.latitude, loc.longitude]);
@@ -736,6 +737,27 @@ async function drawRoute(startLat, startLng, nearbyCoordinates, map) {
     console.error('GraphHopper error:', err);
   }
 }
+
+
+function arrived() {
+  document.getElementById("feedbackPopup").classList.remove("feedback-hidden");
+}
+
+document.querySelectorAll(".star").forEach(star => {
+  star.addEventListener("click", () => {
+    const rating = parseInt(star.getAttribute("data-value"));
+
+    document.querySelectorAll(".star").forEach(s => {
+      s.classList.toggle("selected", parseInt(s.getAttribute("data-value")) <= rating);
+    });
+
+    setTimeout(() => {
+      document.getElementById("feedbackPopup").classList.add("feedback-hidden");
+      console.log(`User rated: ${rating} star(s)`); // optional: send to backend
+    }, 500);
+  });
+});
+
 
 document.getElementById('deletePlaceBtn').addEventListener('click', deletePlace);
 
