@@ -14,6 +14,85 @@ body {
   width: 100%;
 }
 
+#terminalWindow {
+  position: fixed; /* or absolute if you want relative to a container */
+  top: 20%;  /* distance from top */
+  left: 38%; /* distance from left */
+  width: 320px;
+  height: 400px;
+  background: white;
+  color: black;
+  font-family: monospace;
+  z-index: 99999; /* very high */
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  display: none; /* hidden by default */
+  overflow: auto;
+  padding: 10px;
+}
+
+/* Modal container */
+.modal-content {
+  padding: 2.5rem 3rem;
+  border-radius: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;          /* Center all text and inline content */
+  display: flex;
+  flex-direction: column;      /* Stack children vertically */
+  align-items: center;         /* Center children horizontally */
+}
+
+/* Inputs styling */
+.modal-content input[type="text"],
+.modal-content input[type="password"] {
+  width: 100%;
+  max-width: 280px;            /* Limit max width to keep inputs neat */
+  padding: 12px 15px;
+  margin: 12px 0 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+/* Buttons styling */
+.modal-content button {
+  width: 100%;
+  max-width: 280px;            /* Same max width as inputs */
+  padding: 14px 0;
+  margin-top: 10px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+/* Smaller text for register link */
+.modal-switch {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: #555;
+  max-width: 280px;            /* Keep consistent width */
+}
+
+/* Link inside modal-switch */
+.modal-switch a {
+  color: #007BFF;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-switch a:hover {
+  text-decoration: underline;
+}
+
+
 
 #sidebar-button {
   background: none;
@@ -580,7 +659,7 @@ button:hover {
 #bottombar {
   width: 100%;
   height: 80px; /* Adjust the height as needed */
-  background: #333;
+  background: #1f4267;
   color: white;
   padding: 0 20px; /* Padding for left and right */
   position: fixed;
@@ -615,13 +694,14 @@ button:hover {
 .go-btn {
   font-size: 22px;
   padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
   color: white;
 }
 
 .chat-btn:hover,
 .go-btn:hover {
-  background-color: #555; /* Hover effect for both buttons */
+  background-color: #0f3a67; /* Hover effect for both buttons */
 }
 
   

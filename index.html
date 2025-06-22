@@ -12,10 +12,8 @@
   </head>
 
   <body>
+    
     <div id="main-content"></div>
-
-    <!-- Profile Section -->
-    <div class="profile-button">Y</div>
 
     <!-- Bottombar -->
     <div id="bottombar" class="hidden-bottombar">
@@ -31,7 +29,20 @@
       </div>
     </div>
 
+    <!-- Profile Section -->
+    <button class="profile-button" onclick="toggleTerminal()">Y</button>
 
+    <!-- Profile Window -->
+    <div id="terminalWindow" style="display:none;">
+      <div class="modal-content">
+        <h2>Login</h2>
+        <input type="text" id="loginEmail" placeholder="Email" />
+        <input type="password" id="loginPassword" placeholder="Password" />
+        <button onclick="submitLogin()">Login</button>
+      </div>
+    </div>
+
+   
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script src="index.js"></script>
