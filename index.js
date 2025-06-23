@@ -3,7 +3,6 @@ const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
 
 
 
-
 let currentScript = null; 
      async function loadMode(mode) {
         console.log(`Switching to mode: ${mode}`);
@@ -44,6 +43,13 @@ let currentScript = null;
 const terminal = document.getElementById('terminalWindow');
 
 function toggleTerminal() {
+  // Clear
+  document.getElementById("loginEmail").value = "";
+  document.getElementById("loginPassword").value = "";
+  document.getElementById("username").value = "";
+  document.getElementById("registerEmail").value = "";
+  document.getElementById("registerPassword").value = "";
+
   if (terminal.style.display === 'block') {
     terminal.style.display = 'none';
   } else {
@@ -52,11 +58,12 @@ function toggleTerminal() {
 }
 
 
-window.AppConfig = {
-  USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users'
-};
+
 
 async function loginUser() {
+  window.AppConfig = {
+    USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
+};
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
@@ -79,6 +86,9 @@ async function loginUser() {
 }
 
 async function registerUser() {
+  window.AppConfig = {
+    USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
+};
   const [username, email, password, confirmPassword] = document.querySelectorAll('#registerContent input');
 
   if (password.value !== confirmPassword.value) {

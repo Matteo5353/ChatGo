@@ -31,6 +31,19 @@ body {
   padding: 10px;
 }
 
+/* Mobile styles */
+@media (max-width: 480px) {
+  #terminalWindow {
+    width: 50vw;        /* 90% of viewport width */
+    height: 60vh;       /* 60% of viewport height */
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    font-size: 14px;    /* slightly smaller font */
+  }
+}
+
 /* Modal container */
 .modal-content {
   padding: 2.5rem 3rem;
