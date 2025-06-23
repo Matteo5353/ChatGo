@@ -1,6 +1,9 @@
 // Load the page 
 const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
-const USERS_API_URL = 'https://openstreetmap-v0jt.onrender.com/users';
+window.AppConfig = {
+      USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users/register',
+      };
+
 
 
 
@@ -51,34 +54,40 @@ function toggleTerminal() {
   }
 }
 
+
+window.AppConfig = {
+  USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
+  };
+  
 async function loginUser() {
-    //document.getElementById("loginEmail").value = "";
-    //document.getElementById("loginPassword").value = "";
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
 
-    const res = await fetch(`${USERS_API_URL}/login`, {
-      method: 'POST',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+  const res = await fetch(`${window.AppConfig.USERS_API_URL}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
 
-    const data = await res.json();
+  if (!res.ok) {
+    const text = await res.text(); // raw response for debugging
+    throw new Error(`HTTP error! status: ${res.status}, response: ${text}`);
+  }
 
-    if (res.ok) {
-      alert("Welcome back, " + data.username);
-      closeModal(); // or whatever you use to hide the modal
-    } else {
-      alert(data.error || "Login failed");
-    }
+  const data = await res.json();
+
+  alert("Welcome back, " + data.username);
+  closeModal(); // hide login modal or UI
 }
 
 async function registerUser() {
   const [username, email, password, confirmPassword] = document.querySelectorAll('#registerContent input');
 
-  if (password.value !== confirmPassword.value) return alert("Passwords do not match");
+  if (password.value !== confirmPassword.value) {
+    return alert("Passwords do not match");
+  }
 
-  const res = await fetch(`${USERS_API_URL}/register`, {
+  const res = await fetch(`${window.AppConfig.USERS_API_URL}/register`, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
