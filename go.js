@@ -2,10 +2,8 @@ var map = null;
 var markers = [];
 var DEFAULT_ZOOM = 16;
 var MARKER_SIZE = 40;
-//const API_URL = "https://openstreetmap-v0jt.onrender.com/places";
 
 
-// const API_URL = "http://localhost:3000/places";
 var currentInfoWindow = null;
 var Alllocations = [];
 document.addEventListener("DOMContentLoaded", initMap);
@@ -40,7 +38,7 @@ function toggleSidebar() {
 
 async function loadLocations() {
   try {
-    const response = await fetch(window.AppConfig.API_URL);
+    const response = await fetch(window.AppConfig.PLACES_API_URL);
     const locations = await response.json();
     Alllocations = [...locations];
     markers.forEach((marker) => map.removeLayer(marker));
@@ -333,7 +331,7 @@ async function addPlace() {
     };
     if (!placeData.title || !placeData.latitude || !placeData.longitude)
       throw new Error("Please fill in all fields");
-      const response = await fetch(API_URL, {
+      const response = await fetch(PLACES_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(placeData),

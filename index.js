@@ -1,4 +1,6 @@
 // Load the page 
+const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
+
 
 let currentScript = null; 
      async function loadMode(mode) {
@@ -28,9 +30,8 @@ let currentScript = null;
         document.body.appendChild(currentScript);
 
       }
-
-      window.AppConfig = {
-      API_URL: 'https://openstreetmap-v0jt.onrender.com/places',
+    window.AppConfig = {
+      PLACES_API_URL: 'https://openstreetmap-v0jt.onrender.com/places',
       };
       
     window.onload = () => loadMode('go');
@@ -49,31 +50,54 @@ function toggleTerminal() {
   }
 }
 
-function submitLogin() {
-    document.getElementById("loginEmail").value = "";
+async function loginUser() {
+    //document.getElementById("loginEmail").value = "";
     //document.getElementById("loginPassword").value = "";
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
 
-    fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-        if (data.token) {
-            alert('Login successful');
-            localStorage.setItem('token', data.token);
-            toggleProfilePage(); // hides the modal again
-        } else {
-            alert(data.error || 'Login failed');
-        }
-    })
-    .catch((err) => {
-        console.error('Login error:', err);
+    const res = await fetch(`${BASE_API_URL}/api/login`, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
     });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Welcome back, " + data.username);
+      closeModal(); // or whatever you use to hide the modal
+    } else {
+      alert(data.error || "Login failed");
+    }
 }
+
+async function registerUser() {
+  const [username, email, password, confirmPassword] = document.querySelectorAll('#registerContent input');
+
+  if (password.value !== confirmPassword.value) return alert("Passwords do not match");
+
+  const res = await fetch(`${BASE_API_URL}/api/register`, {
+    method: 'POST',
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: username.value,
+      email: email.value,
+      password: password.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    alert("Registered successfully");
+    showLoginPage();
+  } else {
+    alert(data.error || "Registration failed");
+  }
+}
+
+  
 
 // Switching between login and register page
 function showRegisterPage() {

@@ -53,6 +53,44 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+// Register Route
+app.post('/api/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ error: 'Email already in use' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    res.json({ message: 'Registration successful' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Login Route
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: 'Account not found' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+    res.json({ message: 'Login successful', username: user.username });
+  } catch (error) {
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+
+
 
 // API Endpoints
 app.get('/places', async (req, res) => {
@@ -112,4 +150,12 @@ app.delete('/places/:id', async (req, res) => {
     console.error('Error deleting place:', error);
     res.status(500).json({ error: 'Failed to delete place' });
   }
+});
+
+
+
+const PORT = process.env.PORT || 3000; // 3000 is fallback for local development
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
