@@ -34,11 +34,28 @@
 
     <!-- Profile Window -->
     <div id="terminalWindow" style="display:none;">
-      <div class="modal-content">
+      <div class="modal-content" id="loginContent">
         <h2>Login</h2>
         <input type="text" id="loginEmail" placeholder="Email" />
         <input type="password" id="loginPassword" placeholder="Password" />
         <button onclick="submitLogin()">Login</button>
+        <div class="modal-switch">
+          Don't have an account yet?
+          <a href="#" onclick="showRegisterPage()">Register now</a>
+        </div>
+      </div>
+      <!-- REGISTER CONTENT (Hidden initially) -->
+      <div class="modal-content register" id="registerContent" style="display: none;">
+        <h2>Register</h2>
+        <input type="text" placeholder="Username" />
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Password" />
+        <input type="password" placeholder="Confirm Password" />
+        <button>Register</button>
+        <div class="modal-switch">
+          Already have an account?
+          <a href="#" onclick="showLoginPage()">Login here</a>
+          </div>
       </div>
     </div>
 

@@ -42,8 +42,15 @@ body {
   align-items: center;         /* Center children horizontally */
 }
 
+.modal-content.register {
+  max-width: 380px;
+  gap: 12px;
+}
+
+
 /* Inputs styling */
 .modal-content input[type="text"],
+.modal-content input[type="email"],
 .modal-content input[type="password"] {
   width: 100%;
   max-width: 280px;            /* Limit max width to keep inputs neat */
@@ -90,6 +97,7 @@ body {
 
 .modal-switch a:hover {
   text-decoration: underline;
+  color: #0056b3;
 }
 
 

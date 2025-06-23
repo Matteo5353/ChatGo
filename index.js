@@ -33,7 +33,7 @@ let currentScript = null;
       API_URL: 'https://openstreetmap-v0jt.onrender.com/places',
       };
       
-    window.onload = () => loadMode('go');   
+    window.onload = () => loadMode('go');
 
 
 
@@ -73,4 +73,16 @@ function submitLogin() {
     .catch((err) => {
         console.error('Login error:', err);
     });
+}
+
+// Switching between login and register page
+function showRegisterPage() {
+  document.getElementById("loginContent").style.display = "none";
+  document.getElementById("registerContent").style.display = "flex";
+  document.getElementById("registerContent").style.minHeight = "420px";
+}
+
+function showLoginPage() {
+  document.getElementById("registerContent").style.display = "none";
+  document.getElementById("loginContent").style.display = "flex";
 }
