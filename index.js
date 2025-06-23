@@ -1,5 +1,7 @@
 // Load the page 
 const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
+const USERS_API_URL = 'https://openstreetmap-v0jt.onrender.com/users';
+
 
 
 let currentScript = null; 
@@ -33,7 +35,6 @@ let currentScript = null;
     window.AppConfig = {
       PLACES_API_URL: 'https://openstreetmap-v0jt.onrender.com/places',
       };
-      
     window.onload = () => loadMode('go');
 
 
@@ -56,7 +57,7 @@ async function loginUser() {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
-    const res = await fetch(`${BASE_API_URL}/api/login`, {
+    const res = await fetch(`${USERS_API_URL}/login`, {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -77,7 +78,7 @@ async function registerUser() {
 
   if (password.value !== confirmPassword.value) return alert("Passwords do not match");
 
-  const res = await fetch(`${BASE_API_URL}/api/register`, {
+  const res = await fetch(`${USERS_API_URL}/register`, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
