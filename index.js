@@ -1,8 +1,5 @@
 // Load the page 
 const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
-window.AppConfig = {
-      USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users/register',
-      };
 
 
 
@@ -56,9 +53,9 @@ function toggleTerminal() {
 
 
 window.AppConfig = {
-  USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
-  };
-  
+  USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users'
+};
+
 async function loginUser() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
@@ -70,14 +67,15 @@ async function loginUser() {
   });
 
   if (!res.ok) {
-    const text = await res.text(); // raw response for debugging
-    throw new Error(`HTTP error! status: ${res.status}, response: ${text}`);
+    const text = await res.text(); // fallback to plain text
+    alert("Login failed: " + text);
+    return;
   }
 
   const data = await res.json();
 
   alert("Welcome back, " + data.username);
-  closeModal(); // hide login modal or UI
+  toggleTerminal();
 }
 
 async function registerUser() {
@@ -96,6 +94,13 @@ async function registerUser() {
       password: password.value
     })
   });
+  
+  if (!res.ok) {
+    const text = await res.text(); // fallback to plain text
+    console.error("Response error:", text);
+    alert("Registration failed: " + text);
+    return;
+  }
 
   const data = await res.json();
 

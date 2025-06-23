@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cloudinary = require('cloudinary').v2;
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -44,7 +45,7 @@ placeSchema.index({ location: '2dsphere' });
 const Place = mongoose.model('Place', placeSchema);
 
 
-const bcrypt = require('bcrypt');
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -142,7 +143,9 @@ app.get('/places/:id', async (req, res) => {
 app.delete('/places/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedPlace = db.posts.deleteOne({ _id: id })
+    const deletedPlace = await Place.findByIdAndDelete(id);
+
+
     //const deletedPlace = await Place.findByIdAndDelete(id);
     if (!deletedPlace) {
       return res.status(404).json({ error: 'Place not found' });
