@@ -1,9 +1,13 @@
-// Load the page 
+// Load the databases
 const BASE_API_URL = 'https://openstreetmap-v0jt.onrender.com';
+window.AppConfig = {
+  USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
+  PLACES_API_URL: 'https://openstreetmap-v0jt.onrender.com/places'
+};
 
 
 
-let currentScript = null; 
+var currentScript = null; 
      async function loadMode(mode) {
         console.log(`Switching to mode: ${mode}`);
 
@@ -29,18 +33,17 @@ let currentScript = null;
         currentScript.onload = () => console.log(`${mode}.js loaded`);
         currentScript.onerror = () => console.error(`Failed to load ${mode}.js`);
         document.body.appendChild(currentScript);
-
       }
-    window.AppConfig = {
-      PLACES_API_URL: 'https://openstreetmap-v0jt.onrender.com/places',
-      };
     window.onload = () => loadMode('go');
 
 
 
-// Login page 
 
-const terminal = document.getElementById('terminalWindow');
+const loginTerminal = document.getElementById('terminalWindow');
+const profileTerminal = document.getElementById('profileWindow');
+var isLoggedIn = false;
+// var currentUser = {};
+
 
 function toggleTerminal() {
   // Clear
@@ -50,20 +53,39 @@ function toggleTerminal() {
   document.getElementById("registerEmail").value = "";
   document.getElementById("registerPassword").value = "";
 
-  if (terminal.style.display === 'block') {
-    terminal.style.display = 'none';
+  if (loginTerminal.style.display === 'block') {
+    loginTerminal.style.display = 'none';
   } else {
-    terminal.style.display = 'block';
+    loginTerminal.style.display = 'block';
   }
+}
+
+function showUserProfile() {
+  if (!isLoggedIn) {
+    // Not logged In? - then log in
+    toggleTerminal();
+    return;
+  }
+  // Show/hide profile page 
+  if (profileTerminal.style.display === 'block') {
+    profileTerminal.style.display = 'none';
+  } else {
+    profileTerminal.style.display = 'block';
+  }
+}
+
+function logoutUser() {
+  isLoggedIn = false;
+  //currentUser = {};
+  alert ("You have been logged out");
+  profileTerminal.style.display = 'none';
+  loginTerminal.style.display = 'block';
+
 }
 
 
 
-
 async function loginUser() {
-  window.AppConfig = {
-    USERS_API_URL: 'https://openstreetmap-v0jt.onrender.com/users',
-};
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
@@ -83,7 +105,10 @@ async function loginUser() {
 
   alert("Welcome back, " + data.username);
   toggleTerminal();
+  isLoggedIn = true;
+  showUserProfile();
 }
+
 
 async function registerUser() {
   window.AppConfig = {

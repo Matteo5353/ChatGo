@@ -14,6 +14,40 @@ body {
   width: 100%;
 }
 
+#profileWindow { 
+  position: fixed; /* or absolute if you want relative to a container */
+  top: 20%;  /* distance from top */
+  left: 38%; /* distance from left */
+  width: 40 0px;
+  height: 450px;
+  background: white;
+  color: black;
+  font-family: monospace;
+  z-index: 99999; /* very high */
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  display: none; /* hidden by default */
+  overflow: auto;
+  padding: 10px;
+}
+
+#logoutButton {
+  margin-top: 40px;
+  background-color: #dc3545; /* Bootstrap red */
+  color: white;
+  padding: 6px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 450;
+  transition: background-color 0.25s ease;
+}
+
+#logoutButton:hover {
+  background-color: #c82333; /* Slightly darker red on hover */
+}
+
 #terminalWindow {
   position: fixed; /* or absolute if you want relative to a container */
   top: 20%;  /* distance from top */

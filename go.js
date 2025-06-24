@@ -490,10 +490,9 @@ async function chooseStartingPoint() {
   var counter = 0;
 
   if (startingPoint) {
-    // User has manually tapped
+    // If user has manually tapped - gets lat and long
     startLat = startingPoint.lat;
     startLng = startingPoint.lon;
-    console.log("Using user-tapped starting point:", startLat, startLng);
   } else {
     try {
       // No manual tap, try geolocation
@@ -507,7 +506,6 @@ async function chooseStartingPoint() {
 
       startLat = position.coords.latitude;
       startLng = position.coords.longitude;
-      console.log("Using user's current location:", startLat, startLng);
 
     } catch (geoError) {
       alert("Please allow location access or tap to select a starting point.");
@@ -516,18 +514,10 @@ async function chooseStartingPoint() {
     }
   }
 
-    const selectedValue = document.getElementById("idealPreference").value;
-    const durationMin = parseFloat(document.getElementById('idealDuration').value);
-    const tolerance = 0.05;
-
-    console.log("Using stored starting point:", startLat, startLng);
-    console.log("User preferences:", selectedValue, durationMin);
-    
-
-    // 1. Filter markers by ideal tag
+    // Filter markers by ideal tag
     const filtered = Alllocations.filter(loc => loc.ideal === selectedValue);
 
-    // 2. Sort by distance to starting point
+    // Sort by distance to starting point
     filtered.sort((a, b) => {
       const distA = getDistanceFromLatLonInKm(startLat, startLng, a.latitude, a.longitude);
       const distB = getDistanceFromLatLonInKm(startLat, startLng, b.latitude, b.longitude);
@@ -556,6 +546,10 @@ async function chooseStartingPoint() {
       ];
 
       const waypointsStr = routeCoords.map(([lat, lng]) => `${lng},${lat}`).join(';');
+
+      // There's a problem with the time preference here. The route is "invalid" in walking areas, so snaps some points and calculates a 
+      // distance that is not realistic and is way more. - you probably need to change osrm - reason why you need to select a wider time range
+      // Bug but you might not notice it
       const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${waypointsStr}?overview=false`;
 
       try {
@@ -566,14 +560,12 @@ async function chooseStartingPoint() {
           const maxDistanceKm = (durationMin / 60) * avgWalkingSpeedKmPerH;
           //const routeDurationMin = data.routes[0].duration / 60;
           const routeDistanceKm = data.routes[0].distance / 1000;
+          // Here is highlighted the bug mentioned above - of the osrm snap. Consider is for walking areas!
           console.log('Distance:', routeDistanceKm.toFixed(2), 'km');
 
-          //console.log('Route duration:', routeDurationMin.toFixed(2), 'min');
-
-          
           // Checking double
           if (
-            routeDistanceKm <= maxDistanceKm * 1.1 // small leeway
+            routeDistanceKm <= maxDistanceKm * 1.1 
           ) {
             lastValidRoute = [...growingRoute];
             console.log("last route:", ...growingRoute)

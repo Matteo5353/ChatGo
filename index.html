@@ -29,10 +29,28 @@
       </div>
     </div>
 
-    <!-- Profile Section -->
-    <button class="profile-button" onclick="toggleTerminal()">Y</button>
+    <!-- Profile Button -->
+    <button class="profile-button" onclick="showUserProfile()">Y</button>
 
     <!-- Profile Window -->
+    <div id="profileWindow">
+      <div class="modal-content">
+        <h2>Your Profile</h2>
+        <img id="profilePicture" src="default-profile.png" style="width: 100px; height: 100px; border-radius: 50%;" />
+        <input type="file" id="uploadProfilePic" accept="image/*" />
+  
+        <input type="text" id="" placeholder="I'm currently in..." />
+        <input type="text" id="" placeholder="The last city I've visited was" />
+        <input type="text" id="" placeholder="My city suggestion is" />
+        <textarea id="" placeholder="Bio"></textarea>
+
+        <button onclick="saveUserProfile()">Save Changes</button>
+        <button id="logoutButton" onclick="logoutUser()">Log Out</button>
+      </div>
+    </div>
+
+
+    <!-- Login Window -->
     <div id="terminalWindow" style="display:none;">
       <div class="modal-content" id="loginContent">
         <h2>Login</h2>
@@ -44,7 +62,8 @@
           <a href="#" onclick="showRegisterPage()">Register now</a>
         </div>
       </div>
-      <!-- REGISTER CONTENT (Hidden initially) -->
+
+      <!-- Register Window -->
       <div class="modal-content register" id="registerContent" style="display: none;">
         <h2>Register</h2>
         <input type="text" id="username" placeholder="Username" />
