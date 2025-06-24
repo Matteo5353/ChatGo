@@ -6,6 +6,7 @@ const cloudinary = require('cloudinary').v2;
 const bcrypt = require('bcrypt');
 
 const app = express();
+const PORT = process.env.PORT || 4000; // 3000 is fallback for local development
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
@@ -61,6 +62,11 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+
+app.get('/', (req, res) => {
+  res.send('✅ Server is up and running!');
+});
+
 
 
 // Register Route
@@ -203,7 +209,6 @@ app.delete('/places/:id', async (req, res) => {
 
 
 
-const PORT = process.env.PORT || 3000; // 3000 is fallback for local development
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
