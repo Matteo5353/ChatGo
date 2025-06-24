@@ -513,6 +513,12 @@ async function chooseStartingPoint() {
       return;
     }
   }
+    
+    const selectedValue = document.getElementById("idealPreference").value;
+    const durationMin = parseFloat(document.getElementById('idealDuration').value);
+
+    console.log("Using stored starting point:", startLat, startLng);
+    console.log("User preferences:", selectedValue, durationMin);
 
     // Filter markers by ideal tag
     const filtered = Alllocations.filter(loc => loc.ideal === selectedValue);
