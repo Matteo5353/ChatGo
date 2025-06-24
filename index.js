@@ -94,7 +94,7 @@ async function showUserProfile() {
     document.getElementById("currentLocation").value = profile?.location || "";
     document.getElementById("lastCity").value = profile?.lastVisited || "";
     document.getElementById("suggestion").value = profile?.suggestion || "";
-    document.getElementById("bio").value = profile?.bio || "";
+    document.getElementById("Bio").value = profile?.bio || "";
     document.getElementById("profilePicture").src = profile?.profilePic || "default-profile.png";
 
   } catch (err) {
@@ -109,7 +109,7 @@ async function saveUserProfile() {
   const currentLocation = document.getElementById("currentLocation").value;
   const lastCity = document.getElementById("lastCity").value;
   const suggestion = document.getElementById("suggestion").value;
-  const bio = document.getElementById("bio").value;
+  const bio = document.getElementById("Bio").value;
 
   const profilePicInput = document.getElementById("uploadProfilePic");
   let profilePicUrl = document.getElementById("profilePicture").src;

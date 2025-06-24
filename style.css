@@ -31,6 +31,15 @@ body {
   padding: 10px;
 }
 
+#profilePicture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;     /* This is key: ensures the image covers the circle */
+  object-position: center;
+  display: block;
+}
+
 #uploadProfilePic{
   margin-bottom: 30px;
 }
