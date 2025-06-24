@@ -31,6 +31,10 @@ body {
   padding: 10px;
 }
 
+#uploadProfilePic{
+  margin-bottom: 30px;
+}
+
 #logoutButton {
   margin-top: 40px;
   background-color: #dc3545; /* Bootstrap red */

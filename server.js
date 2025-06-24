@@ -48,9 +48,16 @@ const Place = mongoose.model('Place', placeSchema);
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email:    { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  profile: {
+    location: String,
+    lastVisited: String,
+    suggestion: String,
+    bio: String,
+    profilePic: String
+  }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -93,6 +100,43 @@ app.post('/users/login', async (req, res) => {
 });
 
 
+
+app.get('/users/get-profile', async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ profile: user.profile || {} });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+
+// Update User Profile
+app.post('/users/update', async (req, res) => {
+  const { email, profile } = req.body;
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { profile },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'Profile updated successfully!' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Profile update failed' });
+  }
+});
 
 
 // API Endpoints

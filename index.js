@@ -60,19 +60,115 @@ function toggleTerminal() {
   }
 }
 
-function showUserProfile() {
+async function showUserProfile() {
   if (!isLoggedIn) {
-    // Not logged In? - then log in
-    toggleTerminal();
+    toggleTerminal(); // show login if not logged in
     return;
   }
-  // Show/hide profile page 
-  if (profileTerminal.style.display === 'block') {
-    profileTerminal.style.display = 'none';
-  } else {
-    profileTerminal.style.display = 'block';
+  // Clear the inputs
+  document.getElementById("currentLocation").value = "";
+  document.getElementById("lastCity").value = "";
+  document.getElementById("suggestion").value = "";
+  document.getElementById("Bio").value = "";
+
+  const profileWindow = document.getElementById("profileWindow");
+
+  if (profileWindow.style.display === 'block') {
+    profileWindow.style.display = 'none';
+    return;
+  }
+
+  // Show window first
+  profileWindow.style.display = 'block';
+
+  // Load latest profile from backend
+  try {
+    const res = await fetch(`${window.AppConfig.USERS_API_URL}/get-profile?email=${encodeURIComponent(currentUser.email)}`);
+    if (!res.ok) {
+      throw new Error("Failed to fetch profile");
+    }
+
+    const { profile } = await res.json();
+
+    // Populate fields if available
+    document.getElementById("currentLocation").value = profile?.location || "";
+    document.getElementById("lastCity").value = profile?.lastVisited || "";
+    document.getElementById("suggestion").value = profile?.suggestion || "";
+    document.getElementById("bio").value = profile?.bio || "";
+    document.getElementById("profilePicture").src = profile?.profilePic || "default-profile.png";
+
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    alert("Could not load profile.");
   }
 }
+
+
+
+async function saveUserProfile() {
+  const currentLocation = document.getElementById("currentLocation").value;
+  const lastCity = document.getElementById("lastCity").value;
+  const suggestion = document.getElementById("suggestion").value;
+  const bio = document.getElementById("bio").value;
+
+  const profilePicInput = document.getElementById("uploadProfilePic");
+  let profilePicUrl = document.getElementById("profilePicture").src;
+
+  // Upload new profile picture if changed
+  if (profilePicInput.files.length > 0) {
+    const file = profilePicInput.files[0];
+    const base64 = await toBase64(file);
+
+    const uploadRes = await fetch("https://api.cloudinary.com/v1_1/<your-cloud-name>/image/upload", {
+      method: "POST",
+      body: JSON.stringify({
+        file: base64,
+        upload_preset: "<your-upload-preset>"
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const uploadData = await uploadRes.json();
+    profilePicUrl = uploadData.secure_url;
+  }
+
+  const profileData = {
+    location: currentLocation,
+    lastVisited: lastCity,
+    suggestion,
+    bio,
+    profilePic: profilePicUrl
+  };
+
+  const res = await fetch(`${window.AppConfig.USERS_API_URL}/update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: currentUser.email,
+      profile: profileData
+    })
+  });
+
+  const result = await res.json();
+  if (res.ok) {
+    alert("Profile saved!");
+  } else {
+    alert("Error saving profile: " + result.error);
+  }
+}
+
+// Helper to convert file to base64
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 
 function logoutUser() {
   isLoggedIn = false;
@@ -104,6 +200,8 @@ async function loginUser() {
   const data = await res.json();
 
   alert("Welcome back, " + data.username);
+  // Save user info in memory or localStorage
+  window.currentUser = { email };
   toggleTerminal();
   isLoggedIn = true;
   showUserProfile();

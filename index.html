@@ -38,11 +38,14 @@
         <h2>Your Profile</h2>
         <img id="profilePicture" src="default-profile.png" style="width: 100px; height: 100px; border-radius: 50%;" />
         <input type="file" id="uploadProfilePic" accept="image/*" />
-  
-        <input type="text" id="" placeholder="I'm currently in..." />
-        <input type="text" id="" placeholder="The last city I've visited was" />
-        <input type="text" id="" placeholder="My city suggestion is" />
-        <textarea id="" placeholder="Bio"></textarea>
+
+        <br><h3>I'm currentl in...</h3>
+        <input type="text" id="currentLocation" placeholder="I'm currently in..." />
+        <br><h3>The last city I've visited was</h3>
+        <input type="text" id="lastCity" placeholder="The last city I've visited was" />
+        <br><h3>My city suggestion is</h3>
+        <input type="text" id="suggestion" placeholder="My city suggestion is" />
+        <textarea id="Bio" placeholder="Bio"></textarea>
 
         <button onclick="saveUserProfile()">Save Changes</button>
         <button id="logoutButton" onclick="logoutUser()">Log Out</button>
